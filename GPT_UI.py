@@ -1,7 +1,7 @@
 # Maksim Terentev
-# GPT GUI
+# GPT UI
 # Last changes: 4/06/2023
-# Version 1.2.0
+# Version 1.2.1
 
 import tkinter as tk
 import openai
@@ -18,14 +18,14 @@ from matplotlib import pyplot as plt
 default_key = "YOUR_KEY_HERE"
 
 
-class GPT_GUI:
+class GPT_UI:
     def __init__(self):
         self.df_ToM_tests = pd.DataFrame() # Original tests file
         self.df_ToM_tests_results = pd.DataFrame() # Modified tests file
         
         # Set up the frame
         self.root = tk.Tk()
-        self.root.title("GPT GUI")
+        self.root.title("GPT UI")
         self.root['background'] = "#bcd4cc"
         frame = tk.Frame(self.root, bg = "#bcd4cc")
         frame.pack()
@@ -55,51 +55,76 @@ class GPT_GUI:
         self.change_key_btn.config(state = "disabled")
         ########################################################################
 
-        ##### Read/Insert ToM Test(s) field #####
-        read_tests_frame = tk.LabelFrame(frame, text = "2. Read/Insert ToM Test(s)", font = ("Arial", 16, "bold"), bg = "#bcd4cc")
+        ##### Read ToM Test(s) field #####
+        read_tests_frame = tk.LabelFrame(frame, text = "2. Read ToM Test(s)", font = ("Arial", 16, "bold"), bg = "#bcd4cc")
         read_tests_frame.grid(row = 1, column = 0, padx = 10, pady = 0, sticky = tk.W) 
         
+        read_CSV_frame = tk.LabelFrame(read_tests_frame, text = "", font = ("Arial", 15), bg = "#bcd4cc")
+        read_CSV_frame.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = tk.N) 
+        insert_test_manually_frame = tk.LabelFrame(read_tests_frame, text = "", font = ("Arial", 15), bg = "#bcd4cc")
+        insert_test_manually_frame.grid(row = 1, column = 1, padx = 10, pady = 10, sticky = tk.N) 
+        
         self.read_choice = tk.IntVar() # Variable for determining the state of the radio button
-        self.read_choice_rbtn = tk.Radiobutton(read_tests_frame, text = 'Read CSV file', variable = self.read_choice, 
+        
+        self.read_choice_rbtn = tk.Radiobutton(read_CSV_frame, text = 'Read CSV file', variable = self.read_choice, 
                                             value = 1, command = self.read_or_insert_tests, background = "#bcd4cc") # Specify radio button
         self.read_choice_rbtn.grid(row = 0, column = 0, padx = 5, pady = 5, sticky = tk.W)
-        self.browse_file_btn = tk.Button(read_tests_frame, text = "Browse file", highlightbackground = "#bcd4cc", command = self.read_CSV)
-        self.browse_file_btn.grid(row = 1, column = 0, padx = 5, pady = 0, sticky = tk.W)
-        self.file_name_label = tk.Label(read_tests_frame, text = "", font = ("Helvetica", "14", "bold"), bg = "#bcd4cc", width = 15)
-        self.file_name_label.grid(row = 2, column = 0, padx = 0, pady = 5, sticky = tk.W + tk.N)
-        # Gap between Read and Insert
-        gap_label = tk.Label(read_tests_frame, text = "", bg = "#bcd4cc", width = 5) 
-        gap_label.grid(row = 0, column = 1, padx = 0, pady = 0)
         
-        self.create_test_rbtn = tk.Radiobutton(read_tests_frame, text = 'Insert test manually', value = 2, background = "#bcd4cc",
+        self.number_of_tests_var = tk.IntVar() # Variable for determining the number of tests
+        number_of_tests_label = tk.Label(read_CSV_frame, text = "Number of tests:", bg = "#bcd4cc")
+        number_of_tests_label.grid(row = 1, column = 0, padx = 0, pady = 0, sticky = tk.W + tk.N)
+        self.number_of_tests_entry = tk.Entry(read_CSV_frame, width = 2, highlightbackground = "#bcd4cc")
+        self.number_of_tests_entry.grid(row = 1, column = 1, padx = 0, pady = 0, sticky = tk.W + tk.N)
+        
+        file_name_1_label = tk.Label(read_CSV_frame, text = "File name:", bg = "#bcd4cc")
+        file_name_1_label.grid(row = 2, column = 0, padx = 0, pady = 0, sticky = tk.W + tk.N)
+        self.file_name_label = tk.Label(read_CSV_frame, text = "", font = ("Helvetica", "14"), bg = "#bcd4cc", width = 15)
+        self.file_name_label.grid(row = 2, column = 1, padx = 0, pady = 0, sticky = tk.W + tk.N)
+        
+        #gap_label = tk.Label(read_CSV_frame, text = "", bg = "#bcd4cc", height = 6) 
+        #gap_label.grid(row = 1, column = 2, padx = 5, pady = 0)
+        
+        
+        self.browse_file_btn = tk.Button(read_CSV_frame, text = "Browse file", highlightbackground = "#bcd4cc", command = self.read_CSV)
+        self.browse_file_btn.grid(row = 3, column = 0, padx = 5, pady = 0, sticky = tk.W + tk.N)
+        
+        
+       
+        
+        #gap_label = tk.Label(read_CSV_frame, text = "", bg = "#bcd4cc", height = 5, width = 20) 
+        #gap_label.grid(row = 5, column = 0, padx = 0, pady = 0)
+        
+        
+        self.create_test_rbtn = tk.Radiobutton(insert_test_manually_frame, text = 'Insert test manually', value = 2, background = "#bcd4cc",
                                                variable = self.read_choice, command = self.read_or_insert_tests)
-        self.create_test_rbtn.grid(row = 0, column = 3, padx = 0, pady = 5, sticky = tk.W)
+        self.create_test_rbtn.grid(row = 0, column = 1, padx = 0, pady = 5, sticky = tk.W)
         
-        id_label = tk.Label(read_tests_frame, text = "Id:", bg = "#bcd4cc")
-        id_label.grid(row = 1, column = 2, padx = 0, pady = 0, sticky = tk.E)
-        self.id_entry = tk.Entry(read_tests_frame, width = 10, highlightbackground = "#bcd4cc")
-        self.id_entry.grid(row = 1, column = 3, padx = 5, pady = 0, sticky = tk.W)
+
         
-        description_label = tk.Label(read_tests_frame, text = "Description:", bg = "#bcd4cc")
-        description_label.grid(row = 2, column = 2, padx = 0, pady = 0, sticky = tk.E)
-        self.description_test_text = tk.Text(read_tests_frame, highlightbackground = "#bcd4cc", height = 5, width = 50)
-        self.description_test_text.grid(row = 2, column = 3, padx = 5, pady = 0, sticky = tk.W, rowspan = 5)
+        id_label = tk.Label(insert_test_manually_frame, text = "Id:", bg = "#bcd4cc")
+        id_label.grid(row = 1, column = 0, padx = 0, pady = 0, sticky = tk.E)
+        self.id_entry = tk.Entry(insert_test_manually_frame, width = 10, highlightbackground = "#bcd4cc")
+        self.id_entry.grid(row = 1, column = 1, padx = 5, pady = 0, sticky = tk.W)
+        description_label = tk.Label(insert_test_manually_frame, text = "Description:", bg = "#bcd4cc")
+        description_label.grid(row = 2, column = 0, padx = 0, pady = 0, sticky = tk.E)
+        self.description_test_text = tk.Text(insert_test_manually_frame, highlightbackground = "#bcd4cc", height = 5, width = 40)
+        self.description_test_text.grid(row = 2, column = 1, padx = 5, pady = 0, sticky = tk.W, rowspan = 5)
+        question_label = tk.Label(insert_test_manually_frame, text = "Question:", bg = "#bcd4cc")
+        question_label.grid(row = 7, column = 0, padx = 0, pady = 0, sticky = tk.E)
+        self.question_text = tk.Text(insert_test_manually_frame, highlightbackground = "#bcd4cc", height = 2, width = 40)
+        self.question_text.grid(row = 7, column = 1, padx = 5, pady = 0, sticky = tk.W, rowspan = 2)
+        correct_answer_label = tk.Label(insert_test_manually_frame, text = "Correct answer:", bg = "#bcd4cc")
+        correct_answer_label.grid(row = 9, column = 0, padx = 0, pady = 0, sticky = tk.E)
+        self.correct_answer_entry = tk.Entry(insert_test_manually_frame, highlightbackground = "#bcd4cc", width = 30)
+        self.correct_answer_entry.grid(row = 9, column = 1, padx = 5, pady = 0, sticky = tk.W)
+        self.add_test_btn = tk.Button(insert_test_manually_frame, text = "Add test", highlightbackground = "#bcd4cc", command = self.add_test)
+        self.add_test_btn.grid(row = 10, column = 1, padx = 10, pady = 5, sticky = tk.W)
         
-        question_label = tk.Label(read_tests_frame, text = "Question:", bg = "#bcd4cc")
-        question_label.grid(row = 8, column = 2, padx = 0, pady = 0, sticky = tk.E)
-        self.question_text = tk.Text(read_tests_frame, highlightbackground = "#bcd4cc", height = 2, width = 50)
-        self.question_text.grid(row = 8, column = 3, padx = 5, pady = 0, sticky = tk.W, rowspan = 2)
+        self.show_tests_btn_1 = tk.Button(read_CSV_frame, text = "Show tests", highlightbackground = "#bcd4cc", command = self.show_tests)
+        self.show_tests_btn_1.grid(row = 5, column = 0, padx = 0, pady = 5, sticky = tk.W)
         
-        correct_answer_label = tk.Label(read_tests_frame, text = "Correct answer:", bg = "#bcd4cc")
-        correct_answer_label.grid(row = 10, column = 2, padx = 0, pady = 0, sticky = tk.E)
-        self.correct_answer_entry = tk.Entry(read_tests_frame, highlightbackground = "#bcd4cc", width = 30)
-        self.correct_answer_entry.grid(row = 10, column = 3, padx = 5, pady = 0, sticky = tk.W)
-        
-        self.add_test_btn = tk.Button(read_tests_frame, text = "Add test", highlightbackground = "#bcd4cc", command = self.add_test)
-        self.add_test_btn.grid(row = 11, column = 3, padx = 0, pady = 5)
-        
-        self.show_tests_btn = tk.Button(read_tests_frame, text = "Show tests", highlightbackground = "#bcd4cc", command = self.show_tests)
-        self.show_tests_btn.grid(row = 12, column = 2, padx = 0, pady = 5)
+        self.show_tests_btn_2 = tk.Button(insert_test_manually_frame, text = "Show test", highlightbackground = "#bcd4cc", command = self.show_tests)
+        self.show_tests_btn_2.grid(row = 10, column = 1, padx = 0, pady = 5)
         
         # Default states
         self.read_choice.set(1)
@@ -111,7 +136,7 @@ class GPT_GUI:
         self.question_text.config(state = "disabled")
         self.add_test_btn.config(state = "disabled")
         self.correct_answer_entry.config(state = "disabled")
-        self.show_tests_btn.config(state = "disabled")
+        #self.show_tests_btn.config(state = "disabled")
         ########################################################################
         
         #### Run ToM Test(s) ####
@@ -227,7 +252,7 @@ class GPT_GUI:
                     self.correct_answer_entry.config(state = "normal")
                     self.add_test_btn.config(state = "normal")
                 if self.df_ToM_tests.size != 0:
-                    self.show_tests_btn.config(state = "normal")
+                   # self.show_tests_btn.config(state = "normal")
                     self.instruction_description_text.config(state = "normal")
                     self.model_menu.config(state = "normal")
                     self.temperature_spinbox.config(state = "normal")
@@ -252,7 +277,7 @@ class GPT_GUI:
             self.question_text.config(state = "disabled")
             self.correct_answer_entry.config(state = "disabled")
             self.add_test_btn.config(state = "disabled")
-            self.show_tests_btn.config(state = "disabled")
+          #  self.show_tests_btn.config(state = "disabled")
             # Run ToM Test(s) field
             self.instruction_description_text.config(state = "disabled")
             self.model_menu.config(state = "disabled")
@@ -299,7 +324,7 @@ class GPT_GUI:
         self.model_menu.config(state = "disabled")
         self.temperature_spinbox.config(state = "disabled")
         self.max_tokens_entry.config(state = "disabled")
-        self.show_tests_btn.config(state = "disabled")
+       # self.show_tests_btn.config(state = "disabled")
         self.run_experiment_btn.config(state = "disabled")
         self.show_results_btn.config(state = "disabled")
         self.save_file_name_entry.config(state = "disabled")
@@ -351,7 +376,7 @@ class GPT_GUI:
                 filename = file.split('/')[len(file.split('/'))-1]
                 self.file_name_label['text'] = filename
                 
-                self.show_tests_btn.config(state = "normal")
+                #self.show_tests_btn.config(state = "normal")
                 self.instruction_description_text.config(state = "normal")
                 self.model_menu.config(state = "normal")
                 self.temperature_spinbox.config(state = "normal")
@@ -379,7 +404,7 @@ class GPT_GUI:
             self.question_text.delete("1.0", "end")
             self.correct_answer_entry.delete(0, tk.END)
             
-            self.show_tests_btn.config(state = "normal")
+           # self.show_tests_btn.config(state = "normal")
             self.instruction_description_text.config(state = "normal")
             self.model_menu.config(state = "normal")
             self.temperature_spinbox.config(state = "normal")
@@ -491,7 +516,7 @@ class GPT_GUI:
         self.question_text.config(state = "disabled")
         self.add_test_btn.config(state = "disabled")
         self.correct_answer_entry.config(state = "disabled")
-        self.show_tests_btn.config(state = "disabled")
+    #    self.show_tests_btn.config(state = "disabled")
         
         # Run ToM Test(s) field
         self.instruction_description_text.delete('1.0', tk.END)
@@ -527,7 +552,7 @@ def check_api_key_authorization(key):
 
 
 if __name__ == "__main__":
-    GPT_GUI()
+    GPT_UI()
         
      
    
