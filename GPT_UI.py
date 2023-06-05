@@ -16,8 +16,7 @@ from GPT_API import *
 
 
 # PLEASE, SET HERE THE DEFAULT KEY 
-#default_key = "YOUR_KEY_HERE"
-default_key = "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"
+default_key = "YOUR_KEY_HERE"
 
 
 class GPT_UI:
