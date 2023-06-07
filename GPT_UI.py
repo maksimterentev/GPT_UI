@@ -1,7 +1,7 @@
 # Maksim Terentev
 # GPT UI
 # Last changes: 5/06/2023
-# Version 1.3.0
+# Version 1.3.1
 
 import openai
 import re
@@ -211,7 +211,7 @@ class GPT_UI:
         developer_info_label.grid(row = 4, column = 0, padx = 0, pady = 5)
         ########################################################################
 
-        keyboard.block_key("enter") # Allows to prevent "Enter" key from being activated while typing manually the test
+        # keyboard.block_key("enter") # Allows to prevent "Enter" key from being activated while typing manually the test
         
         self.root.mainloop() # Main loop
     
@@ -488,15 +488,19 @@ class GPT_UI:
         percantage_FBT = []
         percentage_UCT = []
         percentage_OT = []
-
-        #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D", "Other ToM tests" : "#FF6E6E"}, 
-        df = pd.DataFrame({"Other ToM tests" : percentage_OT, "Unexpected content tests" : percentage_UCT, "False belief tests" : percantage_FBT}, index = models)
-        ax = df.plot.barh(figsize = (11, 7), width = 0.3)
-        ax.set_xlabel("Passing Percentage")
-        ax.set_title("Performance on ToM tests")
-        ax.xaxis.grid(True, color = "#DFDFDF")
-        plt.xlim([0, 100])
-        plt.show()
+        
+        if len(percantage_FBT) == 0 or len(percentage_UCT) == 0 or len(percentage_OT) == 0:
+            messagebox.showerror("Window", "Some values are missing. The plot can not be generated!")
+        else: 
+            #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D", "Other ToM tests" : "#FF6E6E"}, 
+            # Add outliers
+            df = pd.DataFrame({"Other ToM tests" : percentage_OT, "Unexpected content tests" : percentage_UCT, "False belief tests" : percantage_FBT}, index = models)
+            ax = df.plot.barh(figsize = (11, 7), width = 0.3)
+            ax.set_xlabel("Passing Percentage")
+            ax.set_title("Performance on ToM tests")
+            ax.xaxis.grid(True, color = "#DFDFDF")
+            plt.xlim([0, 100])
+            plt.show()
 
     # Resets GUI to the default state
     def reset(self):
