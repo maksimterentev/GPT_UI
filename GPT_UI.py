@@ -376,7 +376,7 @@ class GPT_UI:
         else:
             self.df_ToM_tests = pd.read_csv(file, sep = ';')
             # Check whether it has the correct columns in the proper order
-            if set(["Id", "Description", "Question 1", "Answer 1", "Correct Answer 1"]).issubset(self.df_ToM_tests.columns):
+            if set(["ID", "Description", "Question 1", "Answer 1", "Correct Answer 1"]).issubset(self.df_ToM_tests.columns):
                 messagebox.showinfo("Window", "The file has been sucsesfully read!")
                 self.df_ToM_tests_results  = self.df_ToM_tests 
                 filename = file.split('/')[len(file.split('/'))-1]
@@ -400,7 +400,7 @@ class GPT_UI:
     # Adds test manually
     def add_test(self):
         if self.id_text.get("1.0", 'end-1c') != "" and self.description_test_text.get("1.0", 'end-1c') != "" and self.question_text.get("1.0", 'end-1c') != "" and self.correct_answer_text.get("1.0", 'end-1c') != "":
-            self.df_ToM_tests = pd.DataFrame(columns = ['Id', 'Description', 'Question 1', 'Answer 1', 'Correct Answer 1'])
+            self.df_ToM_tests = pd.DataFrame(columns = ['ID', 'Description', 'Question 1', 'Answer 1', 'Correct Answer 1'])
             self.df_ToM_tests.loc[len(self.df_ToM_tests.index)] = [self.id_text.get("1.0", 'end-1c'), 
                                                                 self.description_test_text.get("1.0", 'end-1c'), 
                                                                 self.question_text.get("1.0", 'end-1c'), "", 
