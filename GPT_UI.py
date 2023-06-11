@@ -1,7 +1,7 @@
 # Maksim Terentev
 # GPT UI
-# Last changes: 7/06/2023
-# Version 1.3.1
+# Last changes: 11/06/2023
+# Version 1.3.2
 
 import openai
 import re
