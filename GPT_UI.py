@@ -1,7 +1,7 @@
 # Maksim Terentev
 # GPT UI
-# Last changes: 11/06/2023
-# Version 1.3.3
+# Last changes: 12/06/2023
+# Version 1.3.4
 
 import openai
 import re
@@ -9,6 +9,7 @@ import requests
 import keyboard
 import pandas as pd
 import tkinter as tk
+import numpy as np
 from tkinter import messagebox
 from pandastable import Table
 from matplotlib import pyplot as plt
@@ -16,7 +17,8 @@ from GPT_API import *
 
 
 # PLEASE, SET HERE THE DEFAULT KEY 
-default_key = "YOUR_KEY_HERE"
+# default_key = "YOUR_KEY_HERE"
+default_key = "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"
 
 
 class GPT_UI:
@@ -76,7 +78,7 @@ class GPT_UI:
         self.insert_test_manually_rbtn.grid(row = 0, column = 1, padx = 5, pady = 5, sticky = tk.W)
         
         # Read CSV frame
-        self.file_name_label = tk.Label(read_CSV_frame, text = "", font = ("Helvetica", "13", "bold"), bg = "#bcd4cc", width = 15)
+        self.file_name_label = tk.Label(read_CSV_frame, text = "", font = ("Helvetica", "13", "bold"), bg = "#bcd4cc", width = 20)
         self.file_name_label.grid(row = 1, column = 1, padx = 5, pady = 0, sticky = tk.W + tk.N)
         self.browse_file_btn = tk.Button(read_CSV_frame, text = "Browse file", highlightbackground = "#bcd4cc", command = self.read_CSV)
         self.browse_file_btn.grid(row = 2, column = 0, padx = 5, pady = 5, sticky = tk.W + tk.N)
@@ -479,22 +481,43 @@ class GPT_UI:
         self.df_ToM_tests.to_csv(self.save_file_name_var.get(), index = False)
         messagebox.showinfo("Window", "The results have been sucsesfully saved!")
     
-    # Creates the performance plot for human participants and GPT models
-    # Attention: for this plot, values should be entered manually in this function
+    # Creates the performance plot for participants and GPT models
+    # Attention: for this plot, the tests scores should be entered manually in this function
     def performance_plot(self):  
-        models = ["text-davinci-003", "gpt-3.5-turbo", "gpt-4", "Human participants"]
+        models = [ "Participants", "text-davinci-003", "gpt-3.5-turbo", "gpt-4"]
     
-        # Provide here the percentages. Per test category: Human - OT - UCT - FBT
-        percantage_FBT = []
-        percentage_UCT = []
-        percentage_OT = []
+        # Insert here the results of the participants
+        UTT_participants = np.array([12, 10, 11, 12, 11, 12, 12, 12, 11, 12, 11, 10, 11, 12, 12])
+        UCT_participants = np.array([10, 9, 12, 10, 7, 11, 12, 8, 10, 11, 8, 9, 10, 9, 12])
+        FBT_participants = np.arange([])
+        OT_participants = np.arange([])
+        # Insert here the results of the text-davinci-003 model
+        UTT_davinci = np.arange([])
+        UCT_davinci = np.arange([])
+        FBT_davinci = np.arange([])
+        OT_davinci = np.arange([])
+        # Insert here the results of the gpt-3.5-turbo model
+        UTT_GPT3 = np.arange([])
+        UCT_GPT3 = np.arange([])
+        FBT_GPT3 = np.arange([])
+        OT_GPT3 = np.arange([])
+        # Insert here the results of the gpt-4 model
+        UTT_GPT4 = np.arange([])
+        UCT_GPT4 = np.arange([])
+        FBT_GPT4 = np.arange([])
+        OT_GPT4 = np.arange([])
         
-        if len(percantage_FBT) == 0 or len(percentage_UCT) == 0 or len(percentage_OT) == 0:
+        UTT_results = [UTT_participants.mean(), UTT_davinci.mean(), UTT_GPT3.mean(), UTT_GPT4.mean()]
+        UCT_results = [UCT_participants.mean(), UCT_davinci.mean(), UCT_GPT3.mean(), UCT_GPT4.mean()]
+        FBT_results = [FBT_participants.mean(), FBT_davinci.mean(), FBT_GPT3.mean(), FBT_GPT4.mean()]
+        OT_results = [OT_participants.mean(), OT_davinci.mean(), OT_GPT3.mean(), OT_GPT4.mean()]
+        
+        if len(UTT_results) == 0 or len(UCT_results) == 0 or len(FBT_results) == 0 or len(OT_results) == 0:
             messagebox.showerror("Window", "Some values are missing. The plot can not be generated!")
         else: 
             #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D", "Other ToM tests" : "#FF6E6E"}, 
             # Add outliers
-            df = pd.DataFrame({"Other ToM tests" : percentage_OT, "Unexpected content tests" : percentage_UCT, "False belief tests" : percantage_FBT}, index = models)
+            df = pd.DataFrame({"Other ToM Tests" : OT_results, "Falbe-Belief Tests" : FBT_results, "Unexpected Content Tests" : UCT_results, "Unexpected Transfer Tests" : UTT_results}, index = models)
             ax = df.plot.barh(figsize = (11, 7), width = 0.3)
             ax.set_xlabel("Passing Percentage")
             ax.set_title("Performance on ToM tests")
