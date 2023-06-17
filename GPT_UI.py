@@ -13,6 +13,7 @@ import numpy as np
 from tkinter import messagebox
 from pandastable import Table
 from matplotlib import pyplot as plt
+from scipy.stats import chi2_contingency
 from GPT_API import *
 
 
@@ -484,41 +485,41 @@ class GPT_UI:
     # Creates the performance plot for participants and GPT models
     # Attention: for this plot, the tests scores should be entered manually in this function
     def performance_plot(self):  
-        models = [ "Participants", "text-davinci-003", "gpt-3.5-turbo", "gpt-4"]
+        models = ["text-davinci-003", "gpt-3.5-turbo", "gpt-4", "Participants"]
     
         # Insert here the results of the participants
         UTT_participants = np.array([12, 10, 11, 12, 11, 12, 12, 12, 11, 12, 11, 10, 11, 12, 12])
         UCT_participants = np.array([10, 9, 12, 10, 7, 11, 12, 8, 10, 11, 8, 9, 10, 9, 12])
-        FBT_participants = np.arange([])
-        OT_participants = np.arange([])
+        FBT_participants = np.array([12, 8, 8, 10, 9, 10, 11, 10, 10, 12, 9, 8, 10, 11, 10])
+        OT_participants = np.array([12, 9, 10, 9, 9, 8, 9, 10, 7, 9, 10, 9, 7, 7, 9])
         # Insert here the results of the text-davinci-003 model
-        UTT_davinci = np.arange([])
-        UCT_davinci = np.arange([])
-        FBT_davinci = np.arange([])
-        OT_davinci = np.arange([])
+        UTT_davinci = np.array([11])
+        UCT_davinci = np.array([8])
+        FBT_davinci = np.array([8])
+        OT_davinci = np.array([8])
         # Insert here the results of the gpt-3.5-turbo model
-        UTT_GPT3 = np.arange([])
-        UCT_GPT3 = np.arange([])
-        FBT_GPT3 = np.arange([])
-        OT_GPT3 = np.arange([])
+        UTT_GPT3 = np.array([8])
+        UCT_GPT3 = np.array([5])
+        FBT_GPT3 = np.array([8])
+        OT_GPT3 = np.array([8])
         # Insert here the results of the gpt-4 model
-        UTT_GPT4 = np.arange([])
-        UCT_GPT4 = np.arange([])
-        FBT_GPT4 = np.arange([])
-        OT_GPT4 = np.arange([])
+        UTT_GPT4 = np.array([9])
+        UCT_GPT4 = np.array([9])
+        FBT_GPT4 = np.array([11])
+        OT_GPT4 = np.array([11])
         
-        UTT_results = [UTT_participants.mean(), UTT_davinci.mean(), UTT_GPT3.mean(), UTT_GPT4.mean()]
-        UCT_results = [UCT_participants.mean(), UCT_davinci.mean(), UCT_GPT3.mean(), UCT_GPT4.mean()]
-        FBT_results = [FBT_participants.mean(), FBT_davinci.mean(), FBT_GPT3.mean(), FBT_GPT4.mean()]
-        OT_results = [OT_participants.mean(), OT_davinci.mean(), OT_GPT3.mean(), OT_GPT4.mean()]
+        UTT_results = [UTT_davinci.mean() / 12 * 100, UTT_GPT3.mean() / 12 * 100, UTT_GPT4.mean() / 12 * 100, UTT_participants.mean() / 12 * 100]
+        UCT_results = [UCT_davinci.mean() / 12 * 100, UCT_GPT3.mean() / 12 * 100, UCT_GPT4.mean() / 12 * 100, UCT_participants.mean() / 12 * 100]
+        FBT_results = [FBT_davinci.mean() / 12 * 100, FBT_GPT3.mean() / 12 * 100, FBT_GPT4.mean() / 12 * 100, FBT_participants.mean() / 12 * 100]
+        OT_results = [OT_davinci.mean() / 12 * 100, OT_GPT3.mean() / 12 * 100, OT_GPT4.mean() / 12 * 100, OT_participants.mean() / 12 * 100]
         
         if len(UTT_results) == 0 or len(UCT_results) == 0 or len(FBT_results) == 0 or len(OT_results) == 0:
             messagebox.showerror("Window", "Some values are missing. The plot can not be generated!")
         else: 
-            #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D", "Other ToM tests" : "#FF6E6E"}, 
+            #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D",  "Falbe-Belief Tests": "#70DBB6",  "Other ToM tests" : "#FF6E6E"}, 
             # Add outliers
-            df = pd.DataFrame({"Other ToM Tests" : OT_results, "Falbe-Belief Tests" : FBT_results, "Unexpected Content Tests" : UCT_results, "Unexpected Transfer Tests" : UTT_results}, index = models)
-            ax = df.plot.barh(figsize = (11, 7), width = 0.3)
+            df = pd.DataFrame({ "Unexpected Transfer Tests" : UTT_results, "Unexpected Content Tests" : UCT_results, "Falbe-Belief Tests" : FBT_results, "Other ToM Tests" : OT_results}, index = models)
+            ax = df.plot.barh(figsize = (11, 7), width = 0.5)
             ax.set_xlabel("Passing Percentage")
             ax.set_title("Performance on ToM tests")
             ax.xaxis.grid(True, color = "#DFDFDF")
@@ -593,8 +594,37 @@ def check_api_key_authorization(key):
 ###############################################################
 
 
+def stat_test():
+    # nd array: participant x question
+
+    # 1 - correct, 0 - incorrect answer to the question
+    # We just take the most frequent one, e.g. of correct answered 10 and incorrect 5 partcipants, then take correct
+    # Thus, majority
+    # Per question, thus 48 entries
+    human = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0])
+    gpt4 = np.array([1,1,1,1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0])
+    gpt3 = np.array([1,1,1,1,0,0,1,1,0,1,1,0,0,0,1,0,1,0,1,1,0,0,0,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,0,0,1,0])
+    davinci = np.array([1,1,1,1,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,0,0])
+
+    contingency_table = np.array([[np.sum((human == 1) & (gpt4 == 1)), np.sum((human == 1) & (gpt4 == 0))],
+                              [np.sum((human == 0) & (gpt4 == 1)), np.sum((human == 0) & (gpt4 == 0))]])
+    print(contingency_table)
+    chi2, p_value, _, _ = chi2_contingency(contingency_table)
+    print("P-value gpt4:", p_value)
+    contingency_table_3 = np.array([[np.sum((human == 1) & (gpt3 == 1)), np.sum((human == 1) & (gpt3 == 0))],
+                              [np.sum((human == 0) & (gpt3 == 1)), np.sum((human == 0) & (gpt3 == 0))]])
+    chi2, p_value, _, _ = chi2_contingency(contingency_table_3)
+    print("P-value gpt3:", p_value)
+    contingency_table_2 = np.array([[np.sum((human == 1) & (davinci == 1)), np.sum((human == 1) & (davinci == 0))],
+                              [np.sum((human == 0) & (davinci == 1)), np.sum((human == 0) & (davinci == 0))]])
+    chi2, p_value, _, _ = chi2_contingency(contingency_table_2)
+    print("P-value davinci:", p_value)
+    
+    # Cannot reject h_0: there is no significant difference
+
 if __name__ == "__main__":
     GPT_UI()
+    #stat_test()
         
      
    
