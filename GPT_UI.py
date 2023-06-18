@@ -1,6 +1,6 @@
 # Maksim Terentev
 # GPT UI
-# Last changes: 12/06/2023
+# Last changes: 18/06/2023
 # Version 1.3.4
 
 import openai
@@ -15,6 +15,7 @@ from pandastable import Table
 from matplotlib import pyplot as plt
 from scipy.stats import chi2_contingency
 from GPT_API import *
+from ToM_Experiments import *
 
 
 # PLEASE, SET HERE THE DEFAULT KEY 
@@ -134,7 +135,7 @@ class GPT_UI:
         instruction_label = tk.Label(run_tests_frame, text = "Instruction", bg = "#bcd4cc")
         instruction_label.grid(row = 0, column = 0, padx = 5, pady = 0, sticky = tk.W)
         self.instruction_description_text = tk.Text(run_tests_frame, highlightbackground = "#bcd4cc", height = 3, width = 98)
-        self.instruction_description_text.insert(tk.INSERT, "You will be given a story and provided with a question. Please, answer the question as accurately as possible. For yes/no questions, respond only with a 'yes' or a 'no'. For the questions with a gap denoted by '_', provide the shortest answer. For open questions, use a maximum of 10 words.")
+        self.instruction_description_text.insert(tk.INSERT, "You will be given a story and provided with a question. Please, answer the question as accurately as possible. For yes/no questions, respond only with a 'yes' or a 'no'. For open questions, use a maximum of 10 words.")
         self.instruction_description_text.grid(row = 1, column = 0, padx = 5, pady = 0, columnspan = 4, sticky = tk.W)
         
         self.number_of_tests_var = tk.IntVar() # Variable for determining the number of tests
@@ -394,6 +395,8 @@ class GPT_UI:
                 self.temperature_spinbox.config(state = "normal")
                 self.max_tokens_entry.config(state = "normal")
                 self.run_experiment_btn.config(state = "normal")
+                self.save_file_name_entry.config(state = "disabled")
+                self.save_results_btn.config(state = "disabled")
                 
             elif self.df_ToM_tests.empty == True:
                 messagebox.showerror("Window", "The file is empty! Select another file or enter the test manually.")
@@ -457,8 +460,8 @@ class GPT_UI:
         if self.read_choice_var.get() == 2:
             response = conversation(model = self.model_var.get(), system_content = self.instruction_description_text.get("1.0", 'end-1c'), 
                                             max_tokens = self.max_tokens_var.get(), temperature = self.temperature_var.get(), 
-                                            user_content = self.df_ToM_tests.loc[0, 'Description'] + '\n' + self.df_ToM_tests.loc[0, 'Question'])
-            self.df_ToM_tests_results.loc[0, 'Answer'] = response
+                                            user_content = self.df_ToM_tests.loc[0, 'Description'] + '\n' + self.df_ToM_tests.loc[0, 'Question 1'])
+            self.df_ToM_tests_results.loc[0, 'Answer 1'] = response
        
         self.show_results_btn.config(state = "normal")
         self.save_file_name_entry.config(state = "normal")
@@ -479,51 +482,35 @@ class GPT_UI:
     
     # Saves the results in the CSV file   
     def save_CSV(self):
+        ### Add new location
         self.df_ToM_tests.to_csv(self.save_file_name_var.get(), index = False)
         messagebox.showinfo("Window", "The results have been sucsesfully saved!")
     
     # Creates the performance plot for participants and GPT models
     # Attention: for this plot, the tests scores should be entered manually in this function
     def performance_plot(self):  
-        models = ["text-davinci-003", "gpt-3.5-turbo", "gpt-4", "Participants"]
-    
-        # Insert here the results of the participants
-        UTT_participants = np.array([12, 10, 11, 12, 11, 12, 12, 12, 11, 12, 11, 10, 11, 12, 12])
-        UCT_participants = np.array([10, 9, 12, 10, 7, 11, 12, 8, 10, 11, 8, 9, 10, 9, 12])
-        FBT_participants = np.array([12, 8, 8, 10, 9, 10, 11, 10, 10, 12, 9, 8, 10, 11, 10])
-        OT_participants = np.array([12, 9, 10, 9, 9, 8, 9, 10, 7, 9, 10, 9, 7, 7, 9])
-        # Insert here the results of the text-davinci-003 model
-        UTT_davinci = np.array([11])
-        UCT_davinci = np.array([8])
-        FBT_davinci = np.array([8])
-        OT_davinci = np.array([8])
-        # Insert here the results of the gpt-3.5-turbo model
-        UTT_GPT3 = np.array([8])
-        UCT_GPT3 = np.array([5])
-        FBT_GPT3 = np.array([8])
-        OT_GPT3 = np.array([8])
-        # Insert here the results of the gpt-4 model
-        UTT_GPT4 = np.array([9])
-        UCT_GPT4 = np.array([9])
-        FBT_GPT4 = np.array([11])
-        OT_GPT4 = np.array([11])
+        reality, first_order, second_order, third_order = preprocess()
         
-        UTT_results = [UTT_davinci.mean() / 12 * 100, UTT_GPT3.mean() / 12 * 100, UTT_GPT4.mean() / 12 * 100, UTT_participants.mean() / 12 * 100]
-        UCT_results = [UCT_davinci.mean() / 12 * 100, UCT_GPT3.mean() / 12 * 100, UCT_GPT4.mean() / 12 * 100, UCT_participants.mean() / 12 * 100]
-        FBT_results = [FBT_davinci.mean() / 12 * 100, FBT_GPT3.mean() / 12 * 100, FBT_GPT4.mean() / 12 * 100, FBT_participants.mean() / 12 * 100]
-        OT_results = [OT_davinci.mean() / 12 * 100, OT_GPT3.mean() / 12 * 100, OT_GPT4.mean() / 12 * 100, OT_participants.mean() / 12 * 100]
+        categories = ["Reality", "First-order", "Second-order", "Third-order"]
+       
+        participants_results = [np.sum(reality[0, :]) / 13 * 100, np.sum(first_order[0, :]) / 10 * 100, np.sum(second_order[0, :]) / 11 * 100, np.sum(third_order[0, :]) / 2 * 100]
+        davinci_results = [np.sum(reality[1, :]) / 13 * 100, np.sum(first_order[1, :]) / 10 * 100, np.sum(second_order[1, :]) / 11 * 100, np.sum(third_order[1, :]) / 2 * 100]
+        gpt3_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
+        gpt4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
         
-        if len(UTT_results) == 0 or len(UCT_results) == 0 or len(FBT_results) == 0 or len(OT_results) == 0:
+        if len(participants_results) == 0 or len(davinci_results) == 0 or len(gpt3_results) == 0 or len(gpt4_results) == 0:
             messagebox.showerror("Window", "Some values are missing. The plot can not be generated!")
         else: 
             #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D",  "Falbe-Belief Tests": "#70DBB6",  "Other ToM tests" : "#FF6E6E"}, 
             # Add outliers
-            df = pd.DataFrame({ "Unexpected Transfer Tests" : UTT_results, "Unexpected Content Tests" : UCT_results, "Falbe-Belief Tests" : FBT_results, "Other ToM Tests" : OT_results}, index = models)
-            ax = df.plot.barh(figsize = (11, 7), width = 0.5)
+            df = pd.DataFrame({ "Participants" : participants_results, "davinci" : davinci_results, "gpt3" : gpt3_results, "gpt4" : gpt4_results}, index = categories)
+            from matplotlib import cm
+            color = cm.viridis_r(np.linspace(.9, .2, 4))
+            ax = df.plot.barh(figsize = (11, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
             ax.set_xlabel("Passing Percentage")
             ax.set_title("Performance on ToM tests")
             ax.xaxis.grid(True, color = "#DFDFDF")
-            plt.xlim([0, 100])
+            plt.xlim([0, 101])
             plt.show()
 
     # Resets GUI to the default state
@@ -561,7 +548,7 @@ class GPT_UI:
         
         # Run ToM Test(s) field
         self.instruction_description_text.delete('1.0', tk.END)
-        self.instruction_description_text.insert(tk.INSERT, "You will be given a story and provided with a question. Please, answer the question as accurately as possible. For yes/no questions, respond only with a 'yes' or a 'no'. For the questions with a gap denoted by '_', provide the shortest answer. For open questions, use a maximum of 10 words.")
+        self.instruction_description_text.insert(tk.INSERT, "You will be given a story and provided with a question. Please, answer the question as accurately as possible. For yes/no questions, respond only with a 'yes' or a 'no'. For open questions, use a maximum of 10 words.")
         self.number_of_tests_var.set(3)
         self.model_var.set("gpt-3.5-turbo")
         self.temperature_var.set(0.0)
@@ -594,33 +581,7 @@ def check_api_key_authorization(key):
 ###############################################################
 
 
-def stat_test():
-    # nd array: participant x question
 
-    # 1 - correct, 0 - incorrect answer to the question
-    # We just take the most frequent one, e.g. of correct answered 10 and incorrect 5 partcipants, then take correct
-    # Thus, majority
-    # Per question, thus 48 entries
-    human = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0])
-    gpt4 = np.array([1,1,1,1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0])
-    gpt3 = np.array([1,1,1,1,0,0,1,1,0,1,1,0,0,0,1,0,1,0,1,1,0,0,0,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,0,0,1,0])
-    davinci = np.array([1,1,1,1,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,0,0])
-
-    contingency_table = np.array([[np.sum((human == 1) & (gpt4 == 1)), np.sum((human == 1) & (gpt4 == 0))],
-                              [np.sum((human == 0) & (gpt4 == 1)), np.sum((human == 0) & (gpt4 == 0))]])
-    print(contingency_table)
-    chi2, p_value, _, _ = chi2_contingency(contingency_table)
-    print("P-value gpt4:", p_value)
-    contingency_table_3 = np.array([[np.sum((human == 1) & (gpt3 == 1)), np.sum((human == 1) & (gpt3 == 0))],
-                              [np.sum((human == 0) & (gpt3 == 1)), np.sum((human == 0) & (gpt3 == 0))]])
-    chi2, p_value, _, _ = chi2_contingency(contingency_table_3)
-    print("P-value gpt3:", p_value)
-    contingency_table_2 = np.array([[np.sum((human == 1) & (davinci == 1)), np.sum((human == 1) & (davinci == 0))],
-                              [np.sum((human == 0) & (davinci == 1)), np.sum((human == 0) & (davinci == 0))]])
-    chi2, p_value, _, _ = chi2_contingency(contingency_table_2)
-    print("P-value davinci:", p_value)
-    
-    # Cannot reject h_0: there is no significant difference
 
 if __name__ == "__main__":
     GPT_UI()
