@@ -503,7 +503,7 @@ class GPT_UI:
         else: 
             #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D",  "Falbe-Belief Tests": "#70DBB6",  "Other ToM tests" : "#FF6E6E"}, 
             # Add outliers
-            df = pd.DataFrame({ "Participants" : participants_results, "davinci" : davinci_results, "gpt3" : gpt3_results, "gpt4" : gpt4_results}, index = categories)
+            df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : davinci_results, "gpt-3.5-turbo" : gpt3_results, "gpt-4" : gpt4_results}, index = categories)
             from matplotlib import cm
             color = cm.viridis_r(np.linspace(.9, .2, 4))
             ax = df.plot.barh(figsize = (11, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)

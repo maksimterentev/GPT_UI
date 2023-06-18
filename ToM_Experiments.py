@@ -65,12 +65,17 @@ def preprocess():
                             [gpt4[11], gpt4[14]]])    
     return reality, first_order, second_order, third_order
     
+    
     def stat_test():
-        #contingency_table = np.array([[np.sum((human == 1) & (gpt4 == 1)), np.sum((human == 1) & (gpt4 == 0))],
-        #                          [np.sum((human == 0) & (gpt4 == 1)), np.sum((human == 0) & (gpt4 == 0))]])
-        #print(contingency_table)
+        reality, first_order, second_order, third_order = preprocess()
+        
+        # Reaility questions: Participants vs
+        # davinci
+        contingency_table = np.array([[np.sum((reality[0, :] == 1) & (reality[1, :] == 1)), np.sum((reality[0, :] == 1) & (reality[1, :] == 0))],                        
+                                      [np.sum((reality[0, :] == 0) & (reality[1, :] == 1)), np.sum((reality[0, :] == 0) & (reality[1, :] == 0))]])
+        print(contingency_table)
         #chi2, p_value, _, _ = chi2_contingency(contingency_table)
     
     
         # Cannot reject h_0: there is no significant difference
-        pass
+    stat_test()
