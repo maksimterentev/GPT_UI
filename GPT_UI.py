@@ -1,24 +1,20 @@
 # Maksim Terentev
 # GPT UI
-# Last changes: 18/06/2023
-# Version 1.3.4
+# Last changes: 21/06/2023
+# Version 1.3.5
 
 import openai
 import re
 import requests
-import keyboard
 import pandas as pd
 import tkinter as tk
-import numpy as np
 from tkinter import messagebox
 from pandastable import Table
-from matplotlib import pyplot as plt
-from scipy.stats import chi2_contingency
 from GPT_API import *
-from ToM_Experiments import *
+from Auxiliary import *
 
 
-# PLEASE, SET HERE THE DEFAULT KEY 
+# PLEASE, SET THE DEFAULT KEY HERE
 # default_key = "YOUR_KEY_HERE"
 default_key = "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"
 
@@ -88,7 +84,7 @@ class GPT_UI:
         self.show_tests_CSV_btn.grid(row = 2, column = 1, padx = 5, pady = 5, sticky = tk.N)
         
         # Insert test manually frame
-        id_label = tk.Label(insert_test_manually_frame, text = "Id:", bg = "#bcd4cc")
+        id_label = tk.Label(insert_test_manually_frame, text = "ID:", bg = "#bcd4cc")
         id_label.grid(row = 1, column = 0, padx = 0, pady = 0, sticky = tk.E)
         self.id_text = tk.Text(insert_test_manually_frame, highlightbackground = "#bcd4cc", height = 1, width = 10)
         self.id_text.grid(row = 1, column = 1, padx = 5, pady = 0, sticky = tk.W)
@@ -103,7 +99,7 @@ class GPT_UI:
         self.question_text = tk.Text(insert_test_manually_frame, highlightbackground = "#bcd4cc", height = 2, width = 40)
         self.question_text.grid(row = 7, column = 1, padx = 5, pady = 0, sticky = tk.W, rowspan = 2)
         
-        correct_answer_label = tk.Label(insert_test_manually_frame, text = "Correct answer:", bg = "#bcd4cc")
+        correct_answer_label = tk.Label(insert_test_manually_frame, text = "Correct Answer:", bg = "#bcd4cc")
         correct_answer_label.grid(row = 9, column = 0, padx = 0, pady = 0, sticky = tk.E)
         self.correct_answer_text = tk.Text(insert_test_manually_frame, highlightbackground = "#bcd4cc", height = 2, width = 40)
         self.correct_answer_text.grid(row = 9, column = 1, padx = 5, pady = 0, sticky = tk.W)
@@ -203,19 +199,17 @@ class GPT_UI:
         
         ##### Other enteties #####
         self.close_btn = tk.Button(frame, text = "Close", highlightbackground = "#bcd4cc", fg = "red", command = self.close)
-        self.close_btn.grid(row = 0, column = 0, padx = 30, pady = 20, sticky = tk.E + tk.N)
+        self.close_btn.grid(row = 0, column = 0, padx = 50, pady = 20, sticky = tk.E + tk.N)
           
         self.reset_btn = tk.Button(frame, text = "Reset", highlightbackground = "#bcd4cc", bg = "orange", command = self.reset)
-        self.reset_btn.grid(row = 0, column = 0, padx = 130, pady = 20, sticky = tk.E + tk.N)
+        self.reset_btn.grid(row = 0, column = 0, padx = 150, pady = 20, sticky = tk.E + tk.N)
         
         self.performance_plot_btn = tk.Button(frame, text = "Performance plot", highlightbackground = "#bcd4cc", command = self.performance_plot)
-        self.performance_plot_btn.grid(row = 0, column = 0, padx = 45, pady = 25, sticky = tk.E + tk.S)
+        self.performance_plot_btn.grid(row = 0, column = 0, padx = 65, pady = 25, sticky = tk.E + tk.S)
         
         developer_info_label = tk.Label(frame, text = "Developed by Maksim Terentev", bg = "#bcd4cc", fg = "#70998B")
         developer_info_label.grid(row = 4, column = 0, padx = 0, pady = 5)
         ########################################################################
-
-        # keyboard.block_key("enter") # Allows to prevent "Enter" key from being activated while typing manually the test
         
         self.root.mainloop() # Main loop
     
@@ -486,33 +480,14 @@ class GPT_UI:
         self.df_ToM_tests.to_csv(self.save_file_name_var.get(), index = False)
         messagebox.showinfo("Window", "The results have been sucsesfully saved!")
     
-    # Creates the performance plot for participants and GPT models
-    # Attention: for this plot, the tests scores should be entered manually in this function
-    def performance_plot(self):  
-        reality, first_order, second_order, third_order = preprocess()
+    # Shows the performance plot in the new window
+    # Please, choose one of the plots
+    def performance_plot(self): 
+        # The performance plot based on the type of the ToM story
+        # performance_per_story_type()
+        # The performance plot based on the type of the ToM question
+        performance_per_question_type()
         
-        categories = ["Reality", "First-order", "Second-order", "Third-order"]
-       
-        participants_results = [np.sum(reality[0, :]) / 13 * 100, np.sum(first_order[0, :]) / 10 * 100, np.sum(second_order[0, :]) / 11 * 100, np.sum(third_order[0, :]) / 2 * 100]
-        davinci_results = [np.sum(reality[1, :]) / 13 * 100, np.sum(first_order[1, :]) / 10 * 100, np.sum(second_order[1, :]) / 11 * 100, np.sum(third_order[1, :]) / 2 * 100]
-        gpt3_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
-        gpt4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
-        
-        if len(participants_results) == 0 or len(davinci_results) == 0 or len(gpt3_results) == 0 or len(gpt4_results) == 0:
-            messagebox.showerror("Window", "Some values are missing. The plot can not be generated!")
-        else: 
-            #color={"Unexpected transfer tests" : "#6E88FF", "Unexpected content tests" : "#6EFF8D",  "Falbe-Belief Tests": "#70DBB6",  "Other ToM tests" : "#FF6E6E"}, 
-            # Add outliers
-            df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : davinci_results, "gpt-3.5-turbo" : gpt3_results, "gpt-4" : gpt4_results}, index = categories)
-            from matplotlib import cm
-            color = cm.viridis_r(np.linspace(.9, .2, 4))
-            ax = df.plot.barh(figsize = (11, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
-            ax.set_xlabel("Passing Percentage")
-            ax.set_title("Performance on ToM tests")
-            ax.xaxis.grid(True, color = "#DFDFDF")
-            plt.xlim([0, 101])
-            plt.show()
-
     # Resets GUI to the default state
     def reset(self):
         # Clean the key and DataFrames
@@ -585,7 +560,6 @@ def check_api_key_authorization(key):
 
 if __name__ == "__main__":
     GPT_UI()
-    #stat_test()
         
      
    
