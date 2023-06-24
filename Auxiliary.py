@@ -151,6 +151,40 @@ def performance_per_story_type():
     plt.xlim([0, 101])
     plt.show()
     #plt.savefig('PpS_plot.png', dpi = 300)
+
+# Generate the performance plot based on the type of the ToM story per model
+def performance_per_story_type_subplots():
+    UTT, UCT, DBT = preprocess_ToM_stories()
+    categories = ["Unexpected\nTransfer", "Unexpected\nContent", "Deception-\nBased"]
+    
+    participants_results = [np.sum(UTT[0, :]) / 15 * 100, np.sum(UCT[0, :]) / 9 * 100, np.sum(DBT[0, :]) / 12 * 100]
+    text_davinci_003_results = [np.sum(UTT[1, :]) / 15 * 100, np.sum(UCT[1, :]) / 9 * 100, np.sum(DBT[1, :]) / 12 * 100]
+    gpt_3_5_results = [np.sum(UTT[2, :]) / 15 * 100, np.sum(UCT[2, :]) / 9 * 100, np.sum(DBT[2, :]) / 12 * 100]
+    gpt_4_results = [np.sum(UTT[3, :]) / 15 * 100, np.sum(UCT[3, :]) / 9 * 100, np.sum(DBT[3, :]) / 12 * 100]
+   
+    fig, ax = plt.subplots(2, 2, figsize = (8, 6))
+
+    ax[0, 0].bar(categories, participants_results, width = 0.4, color = ["red", "green", "blue"])
+    ax[0, 1].bar(categories, gpt_4_results, width = 0.4, color = ["red", "green", "blue"])
+    ax[1, 0].bar(categories, gpt_3_5_results, width = 0.4, color = ["red", "green", "blue"])
+    ax[1, 1].bar(categories, text_davinci_003_results, width = 0.4, color = ["red", "green", "blue"])
+
+    ax[0, 0].set_title('Human Participants')
+    ax[0, 0].set_ylabel('Passing Rate')
+    ax[0, 1].set_title('gpt-4')
+    ax[0, 1].set_ylabel('Passing Rate')
+    ax[1, 0].set_title('gpt-3.5-turbo')
+    ax[1, 0].set_ylabel('Passing Rate')
+    ax[1, 1].set_title('text-davinci-003')
+    ax[1, 1].set_ylabel('Passing Rate')
+    
+    for ax in ax.flat:
+        ax.set_ylim(0, 105)
+
+    plt.subplots_adjust(hspace = 0.4, wspace = 0.3)
+
+    plt.show()
+    #plt.savefig('PpT_subplots.png', dpi = 300)
     
 # Preprocess the responses for the performance per the question-type plot    
 def preprocess_ToM_questions():
@@ -201,3 +235,37 @@ def performance_per_question_type():
     plt.show()
     #plt.savefig('PpQ_plot.png', dpi = 300)
     
+# Generate the performance plot based on the type of the ToM question per model
+def performance_per_question_type_subplots():
+   reality, first_order, second_order, third_order = preprocess_ToM_questions()
+   
+   categories = ["Reality", "First-\norder", "Second-\norder", "Third-\norder"]
+   
+   participants_results = [np.sum(reality[0, :]) / 13 * 100, np.sum(first_order[0, :]) / 10 * 100, np.sum(second_order[0, :]) / 11 * 100, np.sum(third_order[0, :]) / 2 * 100]
+   text_davinci_003_results = [np.sum(reality[1, :]) / 13 * 100, np.sum(first_order[1, :]) / 10 * 100, np.sum(second_order[1, :]) / 11 * 100, np.sum(third_order[1, :]) / 2 * 100]
+   gpt_3_5_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
+   gpt_4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
+   
+   fig, ax = plt.subplots(2, 2, figsize = (8, 6))
+   ax[0, 0].bar(categories, participants_results, width = 0.5, color = ["red", "green", "blue", "purple"])
+   ax[0, 1].bar(categories, gpt_4_results, width = 0.5, color = ["red", "green", "blue", "purple"])
+   ax[1, 0].bar(categories, gpt_3_5_results, width = 0.5, color = ["red", "green", "blue", "purple"])
+   ax[1, 1].bar(categories, text_davinci_003_results, width = 0.5, color = ["red", "green", "blue", "purple"])
+   
+   ax[0, 0].set_title('Human Participants')
+   ax[0, 0].set_ylabel('Passing Rate')
+   ax[0, 1].set_title('gpt-4')
+   ax[0, 1].set_ylabel('Passing Rate')
+   ax[1, 0].set_title('gpt-3.5-turbo')
+   ax[1, 0].set_ylabel('Passing Rate')
+   ax[1, 1].set_title('text-davinci-003')
+   ax[1, 1].set_ylabel('Passing Rate')
+   
+   for ax in ax.flat:
+       ax.set_ylim(0, 105)
+        
+   plt.subplots_adjust(hspace = 0.4, wspace = 0.3)
+   
+   plt.show()
+   #plt.savefig('PpQ_subplots.png', dpi = 300)
+   
