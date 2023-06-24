@@ -78,26 +78,27 @@ def summary_statistics():
     print("---------------------------------------------")
     
     participants_data = np.sum(participants_raw, axis = 1)
-    davinci_data = np.sum(davinci_raw, axis = 1)
-    gpt3_data = np.sum(gpt3_raw, axis = 1)
-    gpt4_data = np.sum(gpt4_raw, axis = 1)
+    davinci_data = np.mean(np.sum(davinci_raw, axis = 1))
+    gpt3_data = np.mean(np.sum(gpt3_raw, axis = 1))
+    gpt4_data = np.mean(np.sum(gpt4_raw, axis = 1))
     
-    fig = plt.figure(figsize = (8, 5))
+    fig = plt.figure(figsize = (7, 6))
     plt.ylabel('Total Score')
-    plt.boxplot(x = [participants_data, davinci_data, gpt3_data, gpt4_data], labels = ["Human Participants", "text-davinci-003", "gpt-3.5-turbo", "gpt-4"])
+    #"text-davinci-003", "gpt-3.5-turbo", "gpt-4"
+    plt.boxplot(x = participants_data, labels = ["Human Participants"])
     
     x_1 = np.random.normal(1, 0.0, len(participants_data))
-    x_2 = np.random.normal(2, 0.0, len(davinci_data))
-    x_3 = np.random.normal(3, 0.0, len(gpt3_data))
-    x_4 = np.random.normal(4, 0.0, len(gpt4_data))
+    #x_2 = np.random.normal(2, 0.0, len(davinci_data))
+    #x_3 = np.random.normal(3, 0.0, len(gpt3_data))
+    #x_4 = np.random.normal(4, 0.0, len(gpt4_data))
     
     # Scatter points
     plt.scatter(x_1, participants_data, color = 'blue', alpha = 0.6)
-    plt.scatter(x_2, davinci_data, color = 'blue', alpha = 0.6)
-    plt.scatter(x_3, gpt3_data, color = 'blue', alpha = 0.6)
-    plt.scatter(x_4, gpt4_data, color = 'blue', alpha = 0.6)
+    plt.scatter(2, davinci_data, color = 'blue', alpha = 0.6)
+    plt.scatter(3, gpt3_data, color = 'blue', alpha = 0.6)
+    plt.scatter(4, gpt4_data, color = 'blue', alpha = 0.6)
 
-    plt.yticks([20,22,24,26,28,30,32,34,36])
+    plt.ylim([0, 36])
     plt.show()
      
 # Preprocess the responses for the performance per test type plot   
@@ -203,4 +204,8 @@ def performance_per_question_type():
     ax.set_title("Performance on ToM tests")
     ax.xaxis.grid(True, color = "#DFDFDF")
     plt.xlim([0, 101])
-    plt.show()
+    
+    
+   
+
+summary_statistics()
