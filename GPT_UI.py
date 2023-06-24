@@ -15,8 +15,7 @@ from Auxiliary import *
 
 
 # PLEASE, SET THE DEFAULT KEY HERE
-# default_key = "YOUR_KEY_HERE"
-default_key = "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"
+default_key = "YOUR_KEY_HERE"
 
 
 class GPT_UI:
