@@ -1,7 +1,7 @@
 # Maksim Terentev
 # Auxiliary functions
-# Last changes: 21/06/2023
-# Version 1.0.1
+# Last changes: 24/06/2023
+# Version 1.1
 
 import numpy as np
 import pandas as pd
@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from matplotlib import cm
 
-# Contains the test responses of human participants and GPT models
+# Contains the ToM tests responses of human participants and GPT models
 def responses():
-    # nd arrays: participants (15) or GPT model test runs (3) x question (36)
+    # np arrays: participants (15) OR GPT models test runs (3) x question (36)
     # Questions order: FBT_1.1, FBT_1.2, FBT_1.3, FBT_2.1, etc.
     # 0 - incorrect; 1 - correct.
     participants_raw = np.array([[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1],
@@ -32,180 +32,172 @@ def responses():
     davinci_raw = np.array([[1,0,1,1,1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,0],
                        [1,0,1,1,1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,0],
                        [1,0,1,1,1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,0]])
-    gpt3_raw = np.array([[1,0,0,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,1],
+    gpt_3_5_raw = np.array([[1,0,0,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,1],
                     [1,0,0,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,1],
                     [1,0,0,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0,1]])
-    gpt4_raw = np.array([[1,0,1,1,0,1,1,1,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1],
+    gpt_4_raw = np.array([[1,0,1,1,0,1,1,1,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1],
                     [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1],
                     [1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1]])
-    return participants_raw, davinci_raw, gpt3_raw, gpt4_raw
+    return participants_raw, davinci_raw, gpt_3_5_raw, gpt_4_raw
 
-# Summary statistics function
+# The summary statistics function
 def summary_statistics():
-    participants_raw, davinci_raw, gpt3_raw, gpt4_raw = responses()
+    participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
     
     # Human Participants
     print("---------------------------------------------")
     print("Human Participants")
-    print("mean: ", round(np.mean(np.sum(participants_raw, axis = 1)), 1))
-    print("sd: ", round(np.std(np.sum(participants_raw, axis = 1)), 1))
-    print("max: ", np.amax(np.sum(participants_raw, axis = 1)))
-    print("min: ", np.amin(np.sum(participants_raw, axis = 1)))
+    print("Max: ", np.amax(np.sum(participants_raw, axis = 1)))
+    print("Min: ", np.amin(np.sum(participants_raw, axis = 1)))
+    print("Mean: ", round(np.mean(np.sum(participants_raw, axis = 1)), 1))
+    print("SD: ", round(np.std(np.sum(participants_raw, axis = 1)), 1))
     print("---------------------------------------------")
     
     # text-davinci-003
     print("text-davinci-003")
-    print("mean: ", round(np.mean(np.sum(davinci_raw, axis = 1)), 1))
-    print("sd: ", round(np.std(np.sum(davinci_raw, axis = 1)), 1))
-    print("max: ", np.amax(np.sum(davinci_raw, axis = 1)))
-    print("min: ", np.amin(np.sum(davinci_raw, axis = 1)))
+    print("Max: ", np.amax(np.sum(text_davinci_003_raw, axis = 1)))
+    print("Min: ", np.amin(np.sum(text_davinci_003_raw, axis = 1)))
+    print("Mean: ", round(np.mean(np.sum(text_davinci_003_raw, axis = 1)), 1))
+    print("SD: ", round(np.std(np.sum(text_davinci_003_raw, axis = 1)), 1))
     print("---------------------------------------------")
     
     # gpt-3.5-turbo
     print("gpt-3.5-turbo")
-    print("mean: ", round(np.mean(np.sum(gpt3_raw, axis = 1)), 1))
-    print("sd: ", round(np.std(np.sum(gpt3_raw, axis = 1)), 1))
-    print("max: ", np.amax(np.sum(gpt3_raw, axis = 1)))
-    print("min: ", np.amin(np.sum(gpt3_raw, axis = 1)))
+    print("Max: ", np.amax(np.sum(gpt_3_5_raw, axis = 1)))
+    print("Min: ", np.amin(np.sum(gpt_3_5_raw, axis = 1)))
+    print("Mean: ", round(np.mean(np.sum(gpt_3_5_raw, axis = 1)), 1))
+    print("SD: ", round(np.std(np.sum(gpt_3_5_raw, axis = 1)), 1))
     print("---------------------------------------------")
     
     # gpt-4
     print("gpt-4")
-    print("mean: ", round(np.mean(np.sum(gpt4_raw, axis = 1)), 1))
-    print("sd: ", round(np.std(np.sum(gpt4_raw, axis = 1)), 1))
-    print("max: ", np.amax(np.sum(gpt4_raw, axis = 1)))
-    print("min: ", np.amin(np.sum(gpt4_raw, axis = 1)))
+    print("Max: ", np.amax(np.sum(gpt_4_raw, axis = 1)))
+    print("Min: ", np.amin(np.sum(gpt_4_raw, axis = 1)))
+    print("Mean: ", round(np.mean(np.sum(gpt_4_raw, axis = 1)), 1))
+    print("SD: ", round(np.std(np.sum(gpt_4_raw, axis = 1)), 1))
     print("---------------------------------------------")
     
+    # SS plot
     participants_data = np.sum(participants_raw, axis = 1)
-    davinci_data = np.mean(np.sum(davinci_raw, axis = 1))
-    gpt3_data = np.mean(np.sum(gpt3_raw, axis = 1))
-    gpt4_data = np.mean(np.sum(gpt4_raw, axis = 1))
+    text_davinci_003_data = np.mean(np.sum(text_davinci_003_raw, axis = 1))
+    gpt_3_5_data = np.mean(np.sum(gpt_3_5_raw, axis = 1))
+    gpt_4_data = np.mean(np.sum(gpt_4_raw, axis = 1))
     
-    fig = plt.figure(figsize = (7, 6))
-    plt.ylabel('Total Score')
-    #"text-davinci-003", "gpt-3.5-turbo", "gpt-4"
-    plt.boxplot(x = participants_data, labels = ["Human Participants"])
+    fig, ax = plt.subplots(figsize = (7, 7))
+    ax.boxplot(participants_data, positions = [1], widths = 0.4)
     
-    x_1 = np.random.normal(1, 0.0, len(participants_data))
-    #x_2 = np.random.normal(2, 0.0, len(davinci_data))
-    #x_3 = np.random.normal(3, 0.0, len(gpt3_data))
-    #x_4 = np.random.normal(4, 0.0, len(gpt4_data))
+    ax.scatter(np.full_like(participants_data, 1), participants_data, color = 'blue', label = 'Human Participants')
+    ax.scatter(np.full_like(text_davinci_003_data, 2), text_davinci_003_data, color = 'blue', label = 'text-davinci-003')
+    ax.scatter(np.full_like(gpt_3_5_data, 3), gpt_3_5_data, color = 'blue', label = 'gpt-3.5-turbo')
+    ax.scatter(np.full_like(gpt_4_data, 4), gpt_4_data, color = 'blue', label = 'gpt-4')
     
-    # Scatter points
-    plt.scatter(x_1, participants_data, color = 'blue', alpha = 0.6)
-    plt.scatter(2, davinci_data, color = 'blue', alpha = 0.6)
-    plt.scatter(3, gpt3_data, color = 'blue', alpha = 0.6)
-    plt.scatter(4, gpt4_data, color = 'blue', alpha = 0.6)
-
-    plt.ylim([0, 36])
+    ax.axhline(y = text_davinci_003_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axhline(y = gpt_3_5_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axhline(y = gpt_4_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    
+    ax.axvline(x = 1, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axvline(x = 2, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axvline(x = 3, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axvline(x = 4, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    
+    ax.set_xticks([1, 2, 3, 4])
+    ax.set_xticklabels(['Human Participants', 'text-davinci-003', 'gpt-3.5-turbo', 'gpt-4'])
+    ax.set_ylabel('Total Score')
+    ax.set_ylim([0, 36])
+    
     plt.show()
+    #plt.savefig('SS_plot.png', dpi = 300)
      
-# Preprocess the responses for the performance per test type plot   
+# Preprocess the responses for the performance per the story-type plot
 def preprocess_ToM_stories():
-    participants_raw, davinci_raw, gpt3_raw, gpt4_raw = responses()
-    # Per model, for each question, take majority as the result (mode)
+    participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
+    # Per model, for each question, take the majority as a result (mode)
     participants = stats.mode(participants_raw, keepdims = True)[0].flatten()
-    davinci = stats.mode(davinci_raw, keepdims = True)[0].flatten()
-    gpt3 = stats.mode(gpt3_raw, keepdims = True)[0].flatten()
-    gpt4 =  stats.mode(gpt4_raw, keepdims = True)[0].flatten()
+    text_davinci_003 = stats.mode(text_davinci_003_raw, keepdims = True)[0].flatten()
+    gpt_3_5 = stats.mode(gpt_3_5_raw, keepdims = True)[0].flatten()
+    gpt_4 =  stats.mode(gpt_4_raw, keepdims = True)[0].flatten()
     # Regroup stories per category
-    UTT = np.array([[participants[0], participants[1], participants[2], participants[3], participants[4], participants[5], participants[6], participants[7], participants[8]],
-                    [davinci[0], davinci[1], davinci[2], davinci[3], davinci[4], davinci[5], davinci[6], davinci[7], davinci[8]],
-                    [gpt3[0], gpt3[1], gpt3[2], gpt3[3], gpt3[4], gpt3[5], gpt3[6], gpt3[7], gpt3[8]],
-                    [gpt4[0], gpt4[1], gpt4[2], gpt4[3], gpt4[4], gpt4[5], gpt4[6], gpt4[7], gpt4[8]]])
+    UTT = np.array([[participants[0], participants[1], participants[2], participants[3], participants[4], participants[5], participants[6], participants[7], participants[8], participants[15], participants[16], participants[17], participants[18], participants[19], participants[20]],
+                    [text_davinci_003[0], text_davinci_003[1], text_davinci_003[2], text_davinci_003[3], text_davinci_003[4], text_davinci_003[5], text_davinci_003[6], text_davinci_003[7], text_davinci_003[8], text_davinci_003[15], text_davinci_003[16], text_davinci_003[17], text_davinci_003[18], text_davinci_003[19], text_davinci_003[20]],
+                    [gpt_3_5[0], gpt_3_5[1], gpt_3_5[2], gpt_3_5[3], gpt_3_5[4], gpt_3_5[5], gpt_3_5[6], gpt_3_5[7], gpt_3_5[8], gpt_3_5[15], gpt_3_5[16], gpt_3_5[17], gpt_3_5[18], gpt_3_5[19], gpt_3_5[20]],
+                    [gpt_4[0], gpt_4[1], gpt_4[2], gpt_4[3], gpt_4[4], gpt_4[5], gpt_4[6], gpt_4[7], gpt_4[8], gpt_4[15], gpt_4[16], gpt_4[17], gpt_4[18], gpt_4[19], gpt_4[20]]])
     UCT = np.array([[participants[27], participants[28], participants[29], participants[30], participants[31], participants[32], participants[33], participants[34], participants[35]],
-                    [davinci[27], davinci[28], davinci[29], davinci[30], davinci[31], davinci[32], davinci[33], davinci[34], davinci[35]],
-                    [gpt3[27], gpt3[28], gpt3[29], gpt3[30], gpt3[31], gpt3[32], gpt3[33], gpt3[34], gpt3[35]],
-                    [gpt4[27], gpt4[28], gpt4[29], gpt4[30], gpt4[31], gpt4[32], gpt4[33], gpt4[34], gpt4[35]]])
-    ICTT = np.array([[participants[15], participants[16], participants[17], participants[18], participants[19], participants[20]],
-                     [davinci[15], davinci[16], davinci[17], davinci[18], davinci[19], davinci[20]],
-                     [gpt3[15], gpt3[16], gpt3[17], gpt3[18], gpt3[19], gpt3[20]],
-                     [gpt4[15], gpt4[16], gpt4[17], gpt4[18], gpt4[19], gpt4[20]]])
-    PT = np.array([[participants[9], participants[10], participants[11], participants[12], participants[13], participants[14]],
-                   [davinci[9], davinci[10], davinci[11], davinci[12], davinci[13], davinci[14]],
-                   [gpt3[9], gpt3[10], gpt3[11], gpt3[12], gpt3[13], gpt3[14]],
-                   [gpt4[9], gpt4[10], gpt4[11], gpt4[12], gpt4[13], gpt4[14]]])
-    LT = np.array([[participants[21], participants[22], participants[23]],
-                   [davinci[21], davinci[22], davinci[23]],
-                   [gpt3[21], gpt3[22], gpt3[23]],
-                   [gpt4[21], gpt4[22], gpt4[23]]])
-    WLT = np.array([[participants[24], participants[25], participants[26]],
-                   [davinci[24], davinci[25], davinci[26]],
-                   [gpt3[24], gpt3[25], gpt3[26]],
-                   [gpt4[24], gpt4[25], gpt4[26]]])
-    return UTT, UCT, ICTT, PT, LT, WLT
+                    [text_davinci_003[27], text_davinci_003[28], text_davinci_003[29], text_davinci_003[30], text_davinci_003[31], text_davinci_003[32], text_davinci_003[33], text_davinci_003[34], text_davinci_003[35]],
+                    [gpt_3_5[27], gpt_3_5[28], gpt_3_5[29], gpt_3_5[30], gpt_3_5[31], gpt_3_5[32], gpt_3_5[33], gpt_3_5[34], gpt_3_5[35]],
+                    [gpt_4[27], gpt_4[28], gpt_4[29], gpt_4[30], gpt_4[31], gpt_4[32], gpt_4[33], gpt_4[34], gpt_4[35]]])
+    DBT = np.array([[participants[9], participants[10], participants[11], participants[12], participants[13], participants[14], participants[21], participants[22], participants[23], participants[24], participants[25], participants[26]],
+                    [text_davinci_003[9], text_davinci_003[10], text_davinci_003[11], text_davinci_003[12], text_davinci_003[13], text_davinci_003[14], text_davinci_003[21], text_davinci_003[22], text_davinci_003[23], text_davinci_003[24], text_davinci_003[25], text_davinci_003[26]],
+                    [gpt_3_5[9], gpt_3_5[10], gpt_3_5[11], gpt_3_5[12], gpt_3_5[13], gpt_3_5[14], gpt_3_5[21], gpt_3_5[22], gpt_3_5[23], gpt_3_5[24], gpt_3_5[25], gpt_3_5[26]],
+                    [gpt_4[9], gpt_4[10], gpt_4[11], gpt_4[12], gpt_4[13], gpt_4[14], gpt_4[21], gpt_4[22], gpt_4[23], gpt_4[24], gpt_4[25], gpt_4[26]]])
+    return UTT, UCT, DBT
     
-# Create the performance plot based on the type of the ToM story
+# Generate the performance plot based on the type of the ToM story
 def performance_per_story_type():
-    UTT, UCT, ICTT, PT, LT, WLT = preprocess_ToM_stories()
-    categories = ["Unexpected Transfer", "Unexpected Content", "Ice Cream Truck", "Prank", "Lie", "White Lie"]
+    UTT, UCT, DBT = preprocess_ToM_stories()
+    categories = ["Unexpected Transfer", "Unexpected Content", "Deception-Based"]
     
-    participants_results = [np.sum(UTT[0, :]) / 9 * 100, np.sum(UCT[0, :]) / 9 * 100, np.sum(ICTT[0, :]) / 6 * 100, np.sum(PT[0, :]) / 6 * 100, np.sum(LT[0, :]) / 3 * 100, np.sum(WLT[0, :]) / 3 * 100]
-    davinci_results = [np.sum(UTT[1, :]) / 9 * 100, np.sum(UCT[1, :]) / 9 * 100, np.sum(ICTT[1, :]) / 6 * 100, np.sum(PT[1, :]) / 6 * 100, np.sum(LT[1, :]) / 3 * 100, np.sum(WLT[1, :]) / 3 * 100]
-    gpt3_results = [np.sum(UTT[2, :]) / 9 * 100, np.sum(UCT[2, :]) / 9 * 100, np.sum(ICTT[2, :]) / 6 * 100, np.sum(PT[2, :]) / 6 * 100, np.sum(LT[2, :]) / 3 * 100, np.sum(WLT[2, :]) / 3 * 100]
-    gpt4_results = [np.sum(UTT[3, :]) / 9 * 100, np.sum(UCT[3, :]) / 9 * 100, np.sum(ICTT[3, :]) / 6 * 100, np.sum(PT[3, :]) / 6 * 100, np.sum(LT[3, :]) / 3 * 100, np.sum(WLT[3, :]) / 3 * 100]
+    participants_results = [np.sum(UTT[0, :]) / 15 * 100, np.sum(UCT[0, :]) / 9 * 100, np.sum(DBT[0, :]) / 12 * 100]
+    text_davinci_003_results = [np.sum(UTT[1, :]) / 15 * 100, np.sum(UCT[1, :]) / 9 * 100, np.sum(DBT[1, :]) / 12 * 100]
+    gpt_3_5_results = [np.sum(UTT[2, :]) / 15 * 100, np.sum(UCT[2, :]) / 9 * 100, np.sum(DBT[2, :]) / 12 * 100]
+    gpt_4_results = [np.sum(UTT[3, :]) / 15 * 100, np.sum(UCT[3, :]) / 9 * 100, np.sum(DBT[3, :]) / 12 * 100]
     
-    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : davinci_results, "gpt-3.5-turbo" : gpt3_results, "gpt-4" : gpt4_results}, index = categories)
-    color = cm.inferno_r(np.linspace(.9, .2, 4))
+    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
+    #color = cm.rainbow_r(np.linspace(0, 1, 4))
+    color = {"Participants" : "indigo", "text-davinci-003" : "skyblue", "gpt-3.5-turbo" : "lightgreen", "gpt-4" : "gold"}
     ax = df.plot.barh(figsize = (13, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
-    ax.set_xlabel("Passing Percentage")
-    ax.set_title("Performance on ToM tests")
-    ax.xaxis.grid(True, color = "#DFDFDF")
+    ax.set_xlabel("Passing Rate")
+    ax.set_title("Performance on ToM Tests per Story Type")
+    ax.xaxis.grid(True, color = "#DFDFDF", alpha = 1)
     plt.xlim([0, 101])
     plt.show()
+    #plt.savefig('PpS_plot.png', dpi = 300)
     
-   # Preprocess the responses for the performance per questions type plot        
+# Preprocess the responses for the performance per the question-type plot    
 def preprocess_ToM_questions():
-    participants_raw, davinci_raw, gpt3_raw, gpt4_raw = responses()
-    # Per model, for each question, take majority as the result (mode)
+    participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
+    # Per model, for each question, take the majority as a result (mode)
     participants = stats.mode(participants_raw, keepdims = True)[0].flatten()
-    davinci = stats.mode(davinci_raw, keepdims = True)[0].flatten()
-    gpt3 = stats.mode(gpt3_raw, keepdims = True)[0].flatten()
-    gpt4 =  stats.mode(gpt4_raw, keepdims = True)[0].flatten()
-    # Reality questions: FBT_1.1,FBT_2.1,FBT_3.1, FBT_3.2, FBT_4.1, FBT_6.1, FBT_7.1, FBT_8.1, FBT_9.1, FBT_10.1, FBT_11.2, FBT_11.3, FBT_12.2
+    text_davinci_003 = stats.mode(text_davinci_003_raw, keepdims = True)[0].flatten()
+    gpt_3_5 = stats.mode(gpt_3_5_raw, keepdims = True)[0].flatten()
+    gpt_4 =  stats.mode(gpt_4_raw, keepdims = True)[0].flatten()
+    # Regroup stories per category
     reality = np.array([[participants[0], participants[3], participants[6], participants[7], participants[9], participants[15], participants[18], participants[21], participants[24], participants[27], participants[31], participants[32], participants[34]],
-                                  [davinci[0], davinci[3], davinci[6], davinci[7], davinci[9], davinci[15], davinci[18], davinci[21], davinci[24], davinci[27], davinci[31], davinci[32], davinci[34]],
-                                  [gpt3[0], gpt3[3], gpt3[6], gpt3[7], gpt3[9], gpt3[15], gpt3[18], gpt3[21], gpt3[24], gpt3[27], gpt3[31], gpt3[32], gpt3[34]],
-                                  [gpt4[0], gpt4[3], gpt4[6], gpt4[7], gpt4[9], gpt4[15], gpt4[18], gpt4[21], gpt4[24], gpt4[27], gpt4[31], gpt4[32], gpt4[34]]])
-    
-    # First order false-belief quiestions: FBT_1.2, FBT_2.2, FBT_3.3, FBT_4.2, FBT_5.2, FBT_8.2, FBT_9.2, FBT_11.1, FBT_12.1, FBT_12.3
+                                  [text_davinci_003[0], text_davinci_003[3], text_davinci_003[6], text_davinci_003[7], text_davinci_003[9], text_davinci_003[15], text_davinci_003[18], text_davinci_003[21], text_davinci_003[24], text_davinci_003[27], text_davinci_003[31], text_davinci_003[32], text_davinci_003[34]],
+                                  [gpt_3_5[0], gpt_3_5[3], gpt_3_5[6], gpt_3_5[7], gpt_3_5[9], gpt_3_5[15], gpt_3_5[18], gpt_3_5[21], gpt_3_5[24], gpt_3_5[27], gpt_3_5[31], gpt_3_5[32], gpt_3_5[34]],
+                                  [gpt_4[0], gpt_4[3], gpt_4[6], gpt_4[7], gpt_4[9], gpt_4[15], gpt_4[18], gpt_4[21], gpt_4[24], gpt_4[27], gpt_4[31], gpt_4[32], gpt_4[34]]])
     first_order = np.array([[participants[1], participants[4], participants[8], participants[10], participants[13], participants[22], participants[25], participants[30], participants[33], participants[35]],
-                            [davinci[1], davinci[4], davinci[8], davinci[10], davinci[13], davinci[22], davinci[25], davinci[30], davinci[33], davinci[35]],
-                            [gpt3[1], gpt3[4], gpt3[8], gpt3[10], gpt3[13], gpt3[22], gpt3[25], gpt3[30], gpt3[33], gpt3[35]],
-                            [gpt4[1], gpt4[4], gpt4[8], gpt4[10], gpt4[13], gpt4[22], gpt4[25], gpt4[30], gpt4[33], gpt4[35]]])
-    # Second order false-belief questions: FBT_1.3, FBT_2.3, FBT_5.1, FBT_6.2, FBT_6.3, FBT_7.2, FBT_7.3, FBT_8.3, FBT_9.3, FBT_10.2, FBT_10.3
+                            [text_davinci_003[1], text_davinci_003[4], text_davinci_003[8], text_davinci_003[10], text_davinci_003[13], text_davinci_003[22], text_davinci_003[25], text_davinci_003[30], text_davinci_003[33], text_davinci_003[35]],
+                            [gpt_3_5[1], gpt_3_5[4], gpt_3_5[8], gpt_3_5[10], gpt_3_5[13], gpt_3_5[22], gpt_3_5[25], gpt_3_5[30], gpt_3_5[33], gpt_3_5[35]],
+                            [gpt_4[1], gpt_4[4], gpt_4[8], gpt_4[10], gpt_4[13], gpt_4[22], gpt_4[25], gpt_4[30], gpt_4[33], gpt_4[35]]])
     second_order = np.array([[participants[2], participants[5], participants[12], participants[16], participants[17], participants[19], participants[20], participants[23], participants[26], participants[28], participants[29]],
-                            [davinci[2], davinci[5], davinci[12], davinci[16], davinci[17], davinci[19], davinci[20], davinci[23], davinci[26], davinci[28], davinci[29]],
-                            [gpt3[2], gpt3[5], gpt3[12], gpt3[16], gpt3[17], gpt3[19], gpt3[20], gpt3[23], gpt3[26], gpt3[28], gpt3[29]],
-                            [gpt4[2], gpt4[5], gpt4[12], gpt4[16], gpt4[17], gpt4[19], gpt4[20], gpt4[23], gpt4[26], gpt4[28], gpt4[29]]])
-    # Third order false-belief questions: FBT_4.3, FBT_5.3 
+                            [text_davinci_003[2], text_davinci_003[5], text_davinci_003[12], text_davinci_003[16], text_davinci_003[17], text_davinci_003[19], text_davinci_003[20], text_davinci_003[23], text_davinci_003[26], text_davinci_003[28], text_davinci_003[29]],
+                            [gpt_3_5[2], gpt_3_5[5], gpt_3_5[12], gpt_3_5[16], gpt_3_5[17], gpt_3_5[19], gpt_3_5[20], gpt_3_5[23], gpt_3_5[26], gpt_3_5[28], gpt_3_5[29]],
+                            [gpt_4[2], gpt_4[5], gpt_4[12], gpt_4[16], gpt_4[17], gpt_4[19], gpt_4[20], gpt_4[23], gpt_4[26], gpt_4[28], gpt_4[29]]])
     third_order = np.array([[participants[11], participants[14]],
-                            [davinci[11], davinci[14]],
-                            [gpt3[11], gpt3[14]],
-                            [gpt4[11], gpt4[14]]])    
+                            [text_davinci_003[11], text_davinci_003[14]],
+                            [gpt_3_5[11], gpt_3_5[14]],
+                            [gpt_4[11], gpt_4[14]]])  
     return reality, first_order, second_order, third_order
 
-# Create the performance plot based on the type of the ToM question
+# Generate the performance plot based on the type of the ToM question
 def performance_per_question_type():
     reality, first_order, second_order, third_order = preprocess_ToM_questions()
         
     categories = ["Reality", "First-order", "Second-order", "Third-order"]
     
     participants_results = [np.sum(reality[0, :]) / 13 * 100, np.sum(first_order[0, :]) / 10 * 100, np.sum(second_order[0, :]) / 11 * 100, np.sum(third_order[0, :]) / 2 * 100]
-    davinci_results = [np.sum(reality[1, :]) / 13 * 100, np.sum(first_order[1, :]) / 10 * 100, np.sum(second_order[1, :]) / 11 * 100, np.sum(third_order[1, :]) / 2 * 100]
-    gpt3_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
-    gpt4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
+    text_davinci_003_results = [np.sum(reality[1, :]) / 13 * 100, np.sum(first_order[1, :]) / 10 * 100, np.sum(second_order[1, :]) / 11 * 100, np.sum(third_order[1, :]) / 2 * 100]
+    gpt_3_5_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
+    gpt_4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
     
-    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : davinci_results, "gpt-3.5-turbo" : gpt3_results, "gpt-4" : gpt4_results}, index = categories)
-    color = cm.viridis_r(np.linspace(.9, .2, 4))
+    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
+    #color = cm.viridis_r(np.linspace(.9, .2, 4))
+    color = {"Participants" : "indigo", "text-davinci-003" : "skyblue", "gpt-3.5-turbo" : "lightgreen", "gpt-4" : "gold"}
     ax = df.plot.barh(figsize = (11, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
-    ax.set_xlabel("Passing Percentage")
-    ax.set_title("Performance on ToM tests")
-    ax.xaxis.grid(True, color = "#DFDFDF")
+    ax.set_xlabel("Passing Rate")
+    ax.set_title("Performance on ToM Tests per Question Type")
+    ax.xaxis.grid(True, color = "#DFDFDF", alpha = 1)
     plt.xlim([0, 101])
+    plt.show()
+    #plt.savefig('PpQ_plot.png', dpi = 300)
     
-    
-   
-
-summary_statistics()
