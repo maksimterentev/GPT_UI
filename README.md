@@ -3,6 +3,7 @@
 This GitHub repository contains all the necessary project files for the bachelor project "Emergent ToM in LLMs."
 
 - ToM Tests Responses folder. This folder contains CSV files with the ToM test responses from human participants and the GPT models.
+- Performance plots folder. This folder contains the performance plots.
 - ToM_tests.csv. This CSV file includes the ToM tests.
 - ToM_tests_GPT.csv. This CSV file contains the ToM tests for the GPT models.
 - ToM_tests_Participants.csv. This CSV file contains the ToM tests for human participants.
