@@ -1,7 +1,7 @@
 # Maksim Terentev
 # Auxiliary functions
 # Last changes: 24/06/2023
-# Version 1.1
+# Version 1.2
 
 import numpy as np
 import pandas as pd
