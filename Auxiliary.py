@@ -130,7 +130,7 @@ def preprocess_ToM_stories():
                     [gpt_3_5[9], gpt_3_5[10], gpt_3_5[11], gpt_3_5[12], gpt_3_5[13], gpt_3_5[14], gpt_3_5[21], gpt_3_5[22], gpt_3_5[23], gpt_3_5[24], gpt_3_5[25], gpt_3_5[26]],
                     [gpt_4[9], gpt_4[10], gpt_4[11], gpt_4[12], gpt_4[13], gpt_4[14], gpt_4[21], gpt_4[22], gpt_4[23], gpt_4[24], gpt_4[25], gpt_4[26]]])
     return UTT, UCT, DBT
-    
+
 # Generate the performance plot based on the type of the ToM story
 def performance_per_story_type():
     UTT, UCT, DBT = preprocess_ToM_stories()
@@ -143,7 +143,7 @@ def performance_per_story_type():
     
     df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
     #color = cm.rainbow_r(np.linspace(0, 1, 4))
-    color = {"Participants" : "indigo", "text-davinci-003" : "skyblue", "gpt-3.5-turbo" : "lightgreen", "gpt-4" : "gold"}
+    color = {"Participants" : "red", "text-davinci-003" : "blue", "gpt-3.5-turbo" : "green", "gpt-4" : "orange"}
     ax = df.plot.barh(figsize = (13, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
     ax.set_xlabel("Passing Rate")
     ax.set_title("Performance on ToM Tests per Story Type")
@@ -226,8 +226,8 @@ def performance_per_question_type():
     
     df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
     #color = cm.viridis_r(np.linspace(.9, .2, 4))
-    color = {"Participants" : "indigo", "text-davinci-003" : "skyblue", "gpt-3.5-turbo" : "lightgreen", "gpt-4" : "gold"}
-    ax = df.plot.barh(figsize = (11, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
+    color = {"Participants" : "red", "text-davinci-003" : "blue", "gpt-3.5-turbo" : "green", "gpt-4" : "orange"}
+    ax = df.plot.barh(figsize = (11, 7), width = 0.7, color = color, edgecolor = 'black', linewidth = 0.2)
     ax.set_xlabel("Passing Rate")
     ax.set_title("Performance on ToM Tests per Question Type")
     ax.xaxis.grid(True, color = "#DFDFDF", alpha = 1)
@@ -268,4 +268,3 @@ def performance_per_question_type_subplots():
    
    plt.show()
    #plt.savefig('PpQ_subplots.png', dpi = 300)
-   
