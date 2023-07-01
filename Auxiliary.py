@@ -3,6 +3,7 @@
 # Last changes: 24/06/2023
 # Version 1.2
 
+import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -268,3 +269,67 @@ def performance_per_question_type_subplots():
    
    plt.show()
    #plt.savefig('PpQ_subplots.png', dpi = 300)
+   
+def stat_tests():
+    # Per ToM story
+    print("---------------------------------------------")
+    print("Per ToM story")
+    UTT, UCT, DBT = preprocess_ToM_stories()
+
+    means_story = [np.mean(UTT[0, :]), np.mean(UCT[0, :]), np.mean(DBT[0, :])]
+    text_davinci_003_results = [UTT[1, :], UCT[1, :], DBT[1, :]]
+    gpt_3_5_results = [UTT[2, :], UCT[2, :], DBT[2, :]]
+    gpt_4_results = [UTT[3, :], UCT[3, :], DBT[3, :]]
+    
+    # text-davinci-003
+    _, p_value_1_1 = stats.ttest_1samp(a = text_davinci_003_results[0], popmean = means_story[0])
+    _, p_value_1_2 = stats.ttest_1samp(a = text_davinci_003_results[1], popmean = means_story[1])
+    _, p_value_1_3 = stats.ttest_1samp(a = text_davinci_003_results[2], popmean = means_story[2])
+    print("text-davinci-003: ", round(p_value_1_1, 3), round(p_value_1_2, 3), round(p_value_1_3, 3))
+    
+    # gpt-3.5-turbo
+    _, p_value_2_1 = stats.ttest_1samp(a = gpt_3_5_results[0], popmean = means_story[0])
+    _, p_value_2_2 = stats.ttest_1samp(a = gpt_3_5_results[1], popmean = means_story[1])
+    _, p_value_2_3 = stats.ttest_1samp(a = gpt_3_5_results[2], popmean = means_story[2])
+    print("gpt-3.5-turbo: ", round(p_value_2_1, 3), round(p_value_2_2, 3), round(p_value_2_3, 3))
+    
+    # gpt-4
+    _, p_value_3_1 = stats.ttest_1samp(a = gpt_4_results[0], popmean = means_story[0])
+    _, p_value_3_2 = stats.ttest_1samp(a = gpt_4_results[1], popmean = means_story[1])
+    _, p_value_3_3 = stats.ttest_1samp(a = gpt_4_results[2], popmean = means_story[2])
+    print("gpt-4: ", round(p_value_3_1, 3), round(p_value_3_2, 3), round(p_value_3_3, 3))
+    print("---------------------------------------------")
+    
+    # Per ToM Question
+    print("Per ToM question")
+    reality, first_order, second_order, third_order = preprocess_ToM_questions()
+    
+    means_question = [np.mean(reality[0, :]), np.mean(first_order[0, :]), np.mean(second_order[0, :]), np.mean(third_order[0, :])]
+    text_davinci_003_results = [reality[1, :], first_order[1, :], second_order[1, :],third_order[1, :]]
+    gpt_3_5_results = [reality[2, :], first_order[2, :], second_order[2, :], third_order[2, :]]
+    gpt_4_results = [reality[3, :], first_order[3, :], second_order[3, :], third_order[3, :]]
+
+    # text-davinci-003
+    _, p_value_1_1 = stats.ttest_1samp(a = text_davinci_003_results[0], popmean = means_question[0])
+    _, p_value_1_2 = stats.ttest_1samp(a = text_davinci_003_results[1], popmean = means_question[1])
+    _, p_value_1_3 = stats.ttest_1samp(a = text_davinci_003_results[2], popmean = means_question[2])
+    _, p_value_1_4 = stats.ttest_1samp(a = text_davinci_003_results[3], popmean = means_question[3])
+    print("text-davinci-003: ", round(p_value_1_1, 3), round(p_value_1_2, 3), round(p_value_1_3, 3), round(p_value_1_4, 3))
+    
+    # gpt-3.5-turbo
+    _, p_value_2_1 = stats.ttest_1samp(a = gpt_3_5_results[0], popmean = means_question[0])
+    _, p_value_2_2 = stats.ttest_1samp(a = gpt_3_5_results[1], popmean = means_question[1])
+    _, p_value_2_3 = stats.ttest_1samp(a = gpt_3_5_results[2], popmean = means_question[2])
+    _, p_value_2_4 = stats.ttest_1samp(a = gpt_3_5_results[3], popmean = means_question[3])
+    print("gpt-3.5-turbo: ", round(p_value_2_1, 3), round(p_value_2_2, 3), round(p_value_2_3, 3), round(p_value_2_4, 3))
+    
+    # gpt-4
+    warnings.filterwarnings("ignore", category = RuntimeWarning)
+    _, p_value_3_1 = stats.ttest_1samp(a = gpt_4_results[0], popmean = means_question[0])
+    _, p_value_3_2 = stats.ttest_1samp(a = gpt_4_results[1], popmean = means_question[1])
+    _, p_value_3_3 = stats.ttest_1samp(a = gpt_4_results[2], popmean = means_question[2])
+    _, p_value_3_4 = stats.ttest_1samp(a = gpt_4_results[3], popmean = means_question[3])
+    print("gpt-4: ", round(p_value_3_1, 3), round(p_value_3_2, 3), round(p_value_3_3, 3), round(p_value_3_4, 3))
+    print("---------------------------------------------")
+    warnings.resetwarnings()
+    
