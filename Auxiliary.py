@@ -1,14 +1,12 @@
 # Maksim Terentev
 # Auxiliary functions
-# Last changes: 24/06/2023
-# Version 1.2
+# Last changes: 04/06/2023
+# Version 1.3
 
-import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
-from matplotlib import cm
 
 # Contains the ToM tests responses of human participants and GPT models
 def responses():
@@ -92,31 +90,30 @@ def summary_statistics():
     ax.scatter(np.full_like(gpt_3_5_data, 3), gpt_3_5_data, color = 'blue', label = 'gpt-3.5-turbo')
     ax.scatter(np.full_like(gpt_4_data, 4), gpt_4_data, color = 'blue', label = 'gpt-4')
     
-    ax.axhline(y = text_davinci_003_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    ax.axhline(y = gpt_3_5_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    ax.axhline(y = gpt_4_data, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    
-    ax.axvline(x = 1, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    ax.axvline(x = 2, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    ax.axvline(x = 3, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
-    ax.axvline(x = 4, color = 'grey', linestyle = '--', alpha = 0.1, linewidth = 0.7)
+    ax.axhline(y = text_davinci_003_data, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axhline(y = gpt_3_5_data, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axhline(y = gpt_4_data, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axvline(x = 1, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axvline(x = 2, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axvline(x = 3, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
+    ax.axvline(x = 4, color = 'grey', linestyle = '--', alpha = 0.2, linewidth = 0.7)
     
     ax.set_xticks([1, 2, 3, 4])
-    ax.set_xticklabels(['Human Participants', 'text-davinci-003', 'gpt-3.5-turbo', 'gpt-4'])
+    ax.set_xticklabels(['Human Participants', 'text-davinci-003', 'GPT-3.5-turbo', 'GPT-4'])
     ax.set_ylabel('Total Score')
     ax.set_ylim([0, 36])
     
     plt.show()
     #plt.savefig('SS_plot.png', dpi = 300)
-     
+ 
 # Preprocess the responses for the performance per the story-type plot
 def preprocess_ToM_stories():
     participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
-    # Per model, for each question, take the majority as a result (mode)
-    participants = stats.mode(participants_raw, keepdims = True)[0].flatten()
-    text_davinci_003 = stats.mode(text_davinci_003_raw, keepdims = True)[0].flatten()
-    gpt_3_5 = stats.mode(gpt_3_5_raw, keepdims = True)[0].flatten()
-    gpt_4 =  stats.mode(gpt_4_raw, keepdims = True)[0].flatten()
+    participants = np.mean(participants_raw, axis = 0)
+    text_davinci_003 = np.mean(text_davinci_003_raw, axis = 0)
+    gpt_3_5 = np.mean(gpt_3_5_raw, axis = 0)
+    gpt_4 =  np.mean(gpt_4_raw, axis = 0)
+    
     # Regroup stories per category
     UTT = np.array([[participants[0], participants[1], participants[2], participants[3], participants[4], participants[5], participants[6], participants[7], participants[8], participants[15], participants[16], participants[17], participants[18], participants[19], participants[20]],
                     [text_davinci_003[0], text_davinci_003[1], text_davinci_003[2], text_davinci_003[3], text_davinci_003[4], text_davinci_003[5], text_davinci_003[6], text_davinci_003[7], text_davinci_003[8], text_davinci_003[15], text_davinci_003[16], text_davinci_003[17], text_davinci_003[18], text_davinci_003[19], text_davinci_003[20]],
@@ -135,34 +132,34 @@ def preprocess_ToM_stories():
 # Generate the performance plot based on the type of the ToM story
 def performance_per_story_type():
     UTT, UCT, DBT = preprocess_ToM_stories()
-    categories = ["Unexpected Transfer", "Unexpected Content", "Deception-Based"]
+    categories = ["Unexpected Transfer", "Unexpected Contents", "Deception-based"]
     
     participants_results = [np.sum(UTT[0, :]) / 15 * 100, np.sum(UCT[0, :]) / 9 * 100, np.sum(DBT[0, :]) / 12 * 100]
     text_davinci_003_results = [np.sum(UTT[1, :]) / 15 * 100, np.sum(UCT[1, :]) / 9 * 100, np.sum(DBT[1, :]) / 12 * 100]
     gpt_3_5_results = [np.sum(UTT[2, :]) / 15 * 100, np.sum(UCT[2, :]) / 9 * 100, np.sum(DBT[2, :]) / 12 * 100]
     gpt_4_results = [np.sum(UTT[3, :]) / 15 * 100, np.sum(UCT[3, :]) / 9 * 100, np.sum(DBT[3, :]) / 12 * 100]
     
-    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
+    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "GPT-3.5-turbo" : gpt_3_5_results, "GPT-4" : gpt_4_results}, index = categories)
     #color = cm.rainbow_r(np.linspace(0, 1, 4))
-    color = {"Participants" : "red", "text-davinci-003" : "blue", "gpt-3.5-turbo" : "green", "gpt-4" : "orange"}
+    color = {"Participants" : "red", "text-davinci-003" : "blue", "GPT-3.5-turbo" : "green", "GPT-4" : "orange"}
     ax = df.plot.barh(figsize = (13, 7), width = 0.6, color = color, edgecolor = 'black', linewidth = 0.2)
     ax.set_xlabel("Passing Rate")
     ax.set_title("Performance on ToM Tests per Story Type")
     ax.xaxis.grid(True, color = "#DFDFDF", alpha = 1)
     plt.xlim([0, 101])
-    plt.show()
-    #plt.savefig('PpS_plot.png', dpi = 300)
+    #plt.show()
+    plt.savefig('PpS_plot.png', dpi = 300)
 
 # Generate the performance plot based on the type of the ToM story per model
 def performance_per_story_type_subplots():
     UTT, UCT, DBT = preprocess_ToM_stories()
-    categories = ["Unexpected\nTransfer", "Unexpected\nContent", "Deception-\nBased"]
+    categories = ["Unexpected\nTransfer", "Unexpected\nContents", "Deception-\nbased"]
     
     participants_results = [np.sum(UTT[0, :]) / 15 * 100, np.sum(UCT[0, :]) / 9 * 100, np.sum(DBT[0, :]) / 12 * 100]
     text_davinci_003_results = [np.sum(UTT[1, :]) / 15 * 100, np.sum(UCT[1, :]) / 9 * 100, np.sum(DBT[1, :]) / 12 * 100]
     gpt_3_5_results = [np.sum(UTT[2, :]) / 15 * 100, np.sum(UCT[2, :]) / 9 * 100, np.sum(DBT[2, :]) / 12 * 100]
     gpt_4_results = [np.sum(UTT[3, :]) / 15 * 100, np.sum(UCT[3, :]) / 9 * 100, np.sum(DBT[3, :]) / 12 * 100]
-   
+    
     fig, ax = plt.subplots(2, 2, figsize = (8, 6))
 
     ax[0, 0].bar(categories, participants_results, width = 0.4, color = ["red", "green", "blue"])
@@ -172,9 +169,9 @@ def performance_per_story_type_subplots():
 
     ax[0, 0].set_title('Human Participants')
     ax[0, 0].set_ylabel('Passing Rate')
-    ax[0, 1].set_title('gpt-4')
+    ax[0, 1].set_title('GPT-4')
     ax[0, 1].set_ylabel('Passing Rate')
-    ax[1, 0].set_title('gpt-3.5-turbo')
+    ax[1, 0].set_title('GPT-3.5-turbo')
     ax[1, 0].set_ylabel('Passing Rate')
     ax[1, 1].set_title('text-davinci-003')
     ax[1, 1].set_ylabel('Passing Rate')
@@ -184,17 +181,17 @@ def performance_per_story_type_subplots():
 
     plt.subplots_adjust(hspace = 0.4, wspace = 0.3)
 
-    plt.show()
-    #plt.savefig('PpT_subplots.png', dpi = 300)
+    #plt.show()
+    plt.savefig('PpS_subplots.png', dpi = 300)
     
 # Preprocess the responses for the performance per the question-type plot    
 def preprocess_ToM_questions():
     participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
-    # Per model, for each question, take the majority as a result (mode)
-    participants = stats.mode(participants_raw, keepdims = True)[0].flatten()
-    text_davinci_003 = stats.mode(text_davinci_003_raw, keepdims = True)[0].flatten()
-    gpt_3_5 = stats.mode(gpt_3_5_raw, keepdims = True)[0].flatten()
-    gpt_4 =  stats.mode(gpt_4_raw, keepdims = True)[0].flatten()
+    participants = np.mean(participants_raw, axis = 0)
+    text_davinci_003 = np.mean(text_davinci_003_raw, axis = 0)
+    gpt_3_5 = np.mean(gpt_3_5_raw, axis = 0)
+    gpt_4 =  np.mean(gpt_4_raw, axis = 0)
+    
     # Regroup stories per category
     reality = np.array([[participants[0], participants[3], participants[6], participants[7], participants[9], participants[15], participants[18], participants[21], participants[24], participants[27], participants[31], participants[32], participants[34]],
                                   [text_davinci_003[0], text_davinci_003[3], text_davinci_003[6], text_davinci_003[7], text_davinci_003[9], text_davinci_003[15], text_davinci_003[18], text_davinci_003[21], text_davinci_003[24], text_davinci_003[27], text_davinci_003[31], text_davinci_003[32], text_davinci_003[34]],
@@ -225,16 +222,17 @@ def performance_per_question_type():
     gpt_3_5_results = [np.sum(reality[2, :]) / 13 * 100, np.sum(first_order[2, :]) / 10 * 100, np.sum(second_order[2, :]) / 11 * 100, np.sum(third_order[2, :]) / 2 * 100]
     gpt_4_results = [np.sum(reality[3, :]) / 13 * 100, np.sum(first_order[3, :]) / 10 * 100, np.sum(second_order[3, :]) / 11 * 100, np.sum(third_order[3, :]) / 2 * 100]
     
-    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "gpt-3.5-turbo" : gpt_3_5_results, "gpt-4" : gpt_4_results}, index = categories)
+    df = pd.DataFrame({ "Participants" : participants_results, "text-davinci-003" : text_davinci_003_results, "GPT-3.5-turbo" : gpt_3_5_results, "GPT-4" : gpt_4_results}, index = categories)
     #color = cm.viridis_r(np.linspace(.9, .2, 4))
-    color = {"Participants" : "red", "text-davinci-003" : "blue", "gpt-3.5-turbo" : "green", "gpt-4" : "orange"}
+    color = {"Participants" : "red", "text-davinci-003" : "blue", "GPT-3.5-turbo" : "green", "GPT-4" : "orange"}
     ax = df.plot.barh(figsize = (11, 7), width = 0.7, color = color, edgecolor = 'black', linewidth = 0.2)
     ax.set_xlabel("Passing Rate")
     ax.set_title("Performance on ToM Tests per Question Type")
     ax.xaxis.grid(True, color = "#DFDFDF", alpha = 1)
     plt.xlim([0, 101])
-    plt.show()
-    #plt.savefig('PpQ_plot.png', dpi = 300)
+    
+    #plt.show()
+    plt.savefig('PpQ_plot.png', dpi = 300)
     
 # Generate the performance plot based on the type of the ToM question per model
 def performance_per_question_type_subplots():
@@ -255,9 +253,9 @@ def performance_per_question_type_subplots():
    
    ax[0, 0].set_title('Human Participants')
    ax[0, 0].set_ylabel('Passing Rate')
-   ax[0, 1].set_title('gpt-4')
+   ax[0, 1].set_title('GPT-4')
    ax[0, 1].set_ylabel('Passing Rate')
-   ax[1, 0].set_title('gpt-3.5-turbo')
+   ax[1, 0].set_title('GPT-3.5-turbo')
    ax[1, 0].set_ylabel('Passing Rate')
    ax[1, 1].set_title('text-davinci-003')
    ax[1, 1].set_ylabel('Passing Rate')
@@ -267,10 +265,27 @@ def performance_per_question_type_subplots():
         
    plt.subplots_adjust(hspace = 0.4, wspace = 0.3)
    
-   plt.show()
-   #plt.savefig('PpQ_subplots.png', dpi = 300)
-   
+   #plt.show()
+   plt.savefig('PpQ_subplots.png', dpi = 300)
+
+
+# Calculate the p-values 
 def stat_tests():
+    participants_raw, text_davinci_003_raw, gpt_3_5_raw, gpt_4_raw = responses()
+    
+    participants = np.mean(participants_raw, axis = 0)
+    text_davinci_003 = np.mean(text_davinci_003_raw, axis = 0)
+    gpt_3_5 = np.mean(gpt_3_5_raw, axis = 0)
+    gpt_4 =  np.mean(gpt_4_raw, axis = 0)
+    
+    
+    _, p_value_1 = stats.ttest_ind(text_davinci_003, participants)
+    _, p_value_2 = stats.ttest_ind(gpt_3_5, participants)
+    _, p_value_3 = stats.ttest_ind(gpt_4, participants)
+    print("text_davinci_003: ", p_value_1)
+    print("gpt_3_5: ", p_value_2)
+    print("gpt_4: ", p_value_3)
+  
     # Per ToM story
     print("---------------------------------------------")
     print("Per ToM story")
@@ -287,13 +302,13 @@ def stat_tests():
     _, p_value_1_3 = stats.ttest_1samp(a = text_davinci_003_results[2], popmean = means_story[2])
     print("text-davinci-003: ", round(p_value_1_1, 3), round(p_value_1_2, 3), round(p_value_1_3, 3))
     
-    # gpt-3.5-turbo
+    # GPT-3.5-turbo
     _, p_value_2_1 = stats.ttest_1samp(a = gpt_3_5_results[0], popmean = means_story[0])
     _, p_value_2_2 = stats.ttest_1samp(a = gpt_3_5_results[1], popmean = means_story[1])
     _, p_value_2_3 = stats.ttest_1samp(a = gpt_3_5_results[2], popmean = means_story[2])
     print("gpt-3.5-turbo: ", round(p_value_2_1, 3), round(p_value_2_2, 3), round(p_value_2_3, 3))
     
-    # gpt-4
+    # GPT-4
     _, p_value_3_1 = stats.ttest_1samp(a = gpt_4_results[0], popmean = means_story[0])
     _, p_value_3_2 = stats.ttest_1samp(a = gpt_4_results[1], popmean = means_story[1])
     _, p_value_3_3 = stats.ttest_1samp(a = gpt_4_results[2], popmean = means_story[2])
@@ -316,20 +331,17 @@ def stat_tests():
     _, p_value_1_4 = stats.ttest_1samp(a = text_davinci_003_results[3], popmean = means_question[3])
     print("text-davinci-003: ", round(p_value_1_1, 3), round(p_value_1_2, 3), round(p_value_1_3, 3), round(p_value_1_4, 3))
     
-    # gpt-3.5-turbo
+    # GPT-3.5-turbo
     _, p_value_2_1 = stats.ttest_1samp(a = gpt_3_5_results[0], popmean = means_question[0])
     _, p_value_2_2 = stats.ttest_1samp(a = gpt_3_5_results[1], popmean = means_question[1])
     _, p_value_2_3 = stats.ttest_1samp(a = gpt_3_5_results[2], popmean = means_question[2])
     _, p_value_2_4 = stats.ttest_1samp(a = gpt_3_5_results[3], popmean = means_question[3])
     print("gpt-3.5-turbo: ", round(p_value_2_1, 3), round(p_value_2_2, 3), round(p_value_2_3, 3), round(p_value_2_4, 3))
     
-    # gpt-4
-    warnings.filterwarnings("ignore", category = RuntimeWarning)
+    # GPT-4
     _, p_value_3_1 = stats.ttest_1samp(a = gpt_4_results[0], popmean = means_question[0])
     _, p_value_3_2 = stats.ttest_1samp(a = gpt_4_results[1], popmean = means_question[1])
     _, p_value_3_3 = stats.ttest_1samp(a = gpt_4_results[2], popmean = means_question[2])
     _, p_value_3_4 = stats.ttest_1samp(a = gpt_4_results[3], popmean = means_question[3])
     print("gpt-4: ", round(p_value_3_1, 3), round(p_value_3_2, 3), round(p_value_3_3, 3), round(p_value_3_4, 3))
     print("---------------------------------------------")
-    warnings.resetwarnings()
-    
